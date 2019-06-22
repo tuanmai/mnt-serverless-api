@@ -4,5 +4,12 @@
   "description": "API for add order",
   "main": "index.js",
   "author": "Tuan Mai <perhuman@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "serverless-offline": "^5.4.2",
+    "aws-sdk": "^2.480.0"
+  },
+  "dependencies": {
+    "uuid": "^3.3.2"
+  }
 }

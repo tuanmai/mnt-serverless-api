@@ -105,32 +105,29 @@ var _regenerator = __webpack_require__(/*! babel-runtime/regenerator */ "babel-r
 
 var _regenerator2 = _interopRequireDefault(_regenerator);
 
-var _stringify = __webpack_require__(/*! babel-runtime/core-js/json/stringify */ "babel-runtime/core-js/json/stringify");
-
-var _stringify2 = _interopRequireDefault(_stringify);
-
 var _asyncToGenerator2 = __webpack_require__(/*! babel-runtime/helpers/asyncToGenerator */ "babel-runtime/helpers/asyncToGenerator");
 
 var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
 
 __webpack_require__(/*! source-map-support/register */ "source-map-support/register");
 
+var _awsSdk = __webpack_require__(/*! aws-sdk */ "aws-sdk");
+
+var _awsSdk2 = _interopRequireDefault(_awsSdk);
+
 var _uuid = __webpack_require__(/*! uuid */ "uuid");
 
 var _uuid2 = _interopRequireDefault(_uuid);
 
-var _awsSdk = __webpack_require__(/*! aws-sdk */ "aws-sdk");
-
-var _awsSdk2 = _interopRequireDefault(_awsSdk);
+var _response = __webpack_require__(/*! ./response */ "./response.js");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var dynamoDb = new _awsSdk2.default.DynamoDB.DocumentClient();
 
 var addToCard = function () {
-  var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee(event, context, callback) {
-    var data, params, headers, _response, response;
-
+  var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee(event) {
+    var data, params;
     return _regenerator2.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
@@ -153,53 +150,84 @@ var addToCard = function () {
                 createdAt: Date.now()
               }
             };
-            headers = {
-              'Access-Control-Allow-Origin': '*',
-              'Access-Control-Allow-Credentials': true
-            };
-            _context.prev = 3;
-            _context.next = 6;
+            _context.prev = 2;
+            _context.next = 5;
             return dynamoDb.put(params);
 
-          case 6:
-            _context.next = 12;
+          case 5:
+            _context.next = 10;
             break;
 
-          case 8:
-            _context.prev = 8;
-            _context.t0 = _context['catch'](3);
-            _response = {
-              statusCode: 500,
-              headers: headers,
-              body: (0, _stringify2.default)({ status: false })
-            };
+          case 7:
+            _context.prev = 7;
+            _context.t0 = _context['catch'](2);
+            return _context.abrupt('return', (0, _response.failure)({ status: false }));
 
-            callback(null, _response);
+          case 10:
+            return _context.abrupt('return', (0, _response.success)(params.Item));
 
-          case 12:
-            response = {
-              statusCode: 200,
-              headers: headers,
-              body: (0, _stringify2.default)(params.Item)
-            };
-
-            callback(null, response);
-
-          case 14:
+          case 11:
           case 'end':
             return _context.stop();
         }
       }
-    }, _callee, undefined, [[3, 8]]);
+    }, _callee, undefined, [[2, 7]]);
   }));
 
-  return function addToCard(_x, _x2, _x3) {
+  return function addToCard(_x) {
     return _ref.apply(this, arguments);
   };
 }();
 
 // eslint-disable-next-line
 exports.addToCard = addToCard;
+
+/***/ }),
+
+/***/ "./response.js":
+/*!*********************!*\
+  !*** ./response.js ***!
+  \*********************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.failure = exports.success = undefined;
+
+var _stringify = __webpack_require__(/*! babel-runtime/core-js/json/stringify */ "babel-runtime/core-js/json/stringify");
+
+var _stringify2 = _interopRequireDefault(_stringify);
+
+__webpack_require__(/*! source-map-support/register */ "source-map-support/register");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var buildResponse = function buildResponse(statusCode, body) {
+  return {
+    statusCode: statusCode,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Credentials': true
+    },
+    body: (0, _stringify2.default)(body)
+  };
+};
+
+var success = function success(body) {
+  return buildResponse(200, body);
+};
+
+var failure = function failure(body) {
+  return buildResponse(500, body);
+};
+
+exports.success = success;
+exports.failure = failure;
 
 /***/ }),
 

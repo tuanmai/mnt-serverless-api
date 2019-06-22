@@ -1,9 +1,11 @@
-import uuid from 'uuid';
 import AWS from 'aws-sdk';
+import uuid from 'uuid';
+
+import { failure, success } from './response';
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
-const addToCard = async (event, context, callback) => {
+const addToCard = async (event) => {
   // Request body is passed in as a JSON encoded string in 'event.body'
   const data = JSON.parse(event.body);
 
@@ -24,28 +26,12 @@ const addToCard = async (event, context, callback) => {
     },
   };
 
-  const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Credentials': true,
-  };
-
   try {
     await dynamoDb.put(params);
   } catch (err) {
-    const response = {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({ status: false }),
-    };
-    callback(null, response);
+    return failure({ status: false });
   }
-
-  const response = {
-    statusCode: 200,
-    headers,
-    body: JSON.stringify(params.Item),
-  };
-  callback(null, response);
+  return success(params.Item);
 };
 
 // eslint-disable-next-line

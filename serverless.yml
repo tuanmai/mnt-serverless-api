@@ -118,3 +118,8 @@ functions:
 #       Value: "Some output value"
 plugins:
   - serverless-offline
+  - serverless-webpack
+custom:
+  webpack:
+    webpackConfig: ./webpack.config.js
+    includeModules: true

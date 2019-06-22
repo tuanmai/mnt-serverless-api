@@ -1,0 +1,8 @@
+{
+  "name": "mnt_api",
+  "version": "1.0.0",
+  "description": "API for add order",
+  "main": "index.js",
+  "author": "Tuan Mai <perhuman@gmail.com>",
+  "license": "MIT"
+}

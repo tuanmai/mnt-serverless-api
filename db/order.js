@@ -7,6 +7,21 @@ if (process.env.ENV == "test") {
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
+const getAll = () => {
+  const params = {
+    TableName: "orders"
+  };
+
+  return new Promise(resolve => {
+    dynamoDb.scan(params, (error, result) => {
+      if (error) {
+        resolve(failureResult(error));
+      }
+      resolve(successResult(result));
+    });
+  });
+};
+
 const query = userId => {
   const params = {
     TableName: "orders",
@@ -43,4 +58,24 @@ const put = data => {
   });
 };
 
-export default { query, put };
+const destroy = data => {
+  const params = {
+    TableName: "orders",
+    Key: {
+      orderId: data.orderId,
+      userId: data.userId
+    }
+  };
+  console.log(params);
+
+  return new Promise(resolve => {
+    dynamoDb.delete(params, error => {
+      if (error) {
+        resolve(failureResult(error));
+      }
+      resolve(successResult(data));
+    });
+  });
+};
+
+export default { query, put, destroy, getAll };

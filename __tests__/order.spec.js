@@ -1,7 +1,9 @@
+import { map } from "lodash/fp";
 import AWS from "aws-sdk-mock";
 
 import { addToCard } from "../order";
 import Order from "../db/order";
+let orders = [];
 
 describe("Add to card", () => {
   it("returns 200", async () => {
@@ -19,7 +21,9 @@ describe("Add to card", () => {
       expect(beforeCount.data.Count).toEqual(0);
     });
   });
-  beforeAll(() => {
+  beforeAll(async () => {
+    orders = (await Order.getAll()).data.Items;
+    console.log(orders);
     // AWS.mock("DynamoDB.DocumentClient", "put", (params, callback) => {
     //   callback(null, "successfully put item in database");
     // });
@@ -28,7 +32,7 @@ describe("Add to card", () => {
     // });
   });
 
-  afterAll(() => {
-    AWS.restore("DynamoDB.DocumentClient");
+  afterAll(async () => {
+    map(async item => await Order.destroy(item), orders);
   });
 });

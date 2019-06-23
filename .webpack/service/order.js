@@ -120,6 +120,21 @@ if (process.env.ENV == "test") {
 
 var dynamoDb = new _awsSdk2.default.DynamoDB.DocumentClient();
 
+var getAll = function getAll() {
+  var params = {
+    TableName: "orders"
+  };
+
+  return new _promise2.default(function (resolve) {
+    dynamoDb.scan(params, function (error, result) {
+      if (error) {
+        resolve((0, _serviceResult.failureResult)(error));
+      }
+      resolve((0, _serviceResult.successResult)(result));
+    });
+  });
+};
+
 var query = function query(userId) {
   var params = {
     TableName: "orders",
@@ -156,7 +171,27 @@ var put = function put(data) {
   });
 };
 
-exports.default = { query: query, put: put };
+var destroy = function destroy(data) {
+  var params = {
+    TableName: "orders",
+    Key: {
+      orderId: data.orderId,
+      userId: data.userId
+    }
+  };
+  console.log(params);
+
+  return new _promise2.default(function (resolve) {
+    dynamoDb.delete(params, function (error) {
+      if (error) {
+        resolve((0, _serviceResult.failureResult)(error));
+      }
+      resolve((0, _serviceResult.successResult)(data));
+    });
+  });
+};
+
+exports.default = { query: query, put: put, destroy: destroy, getAll: getAll };
 
 /***/ }),
 

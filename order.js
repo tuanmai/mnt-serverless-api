@@ -2,36 +2,28 @@ import AWS from 'aws-sdk';
 import uuid from 'uuid';
 
 import { failure, success } from './response';
+import Order from './db/order';
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
 const addToCard = async (event) => {
-  // Request body is passed in as a JSON encoded string in 'event.body'
   const data = JSON.parse(event.body);
-
-  const params = {
-    TableName: 'orders',
-    // 'Item' contains the attributes of the item to be created
-    // - 'userId': user identities are federated through the
-    //             Cognito Identity Pool, we will use the identity id
-    //             as the user id of the authenticated user
-    // - 'noteId': a unique uuid
-    // - 'content': parsed from request body
-    // - 'attachment': parsed from request body
-    // - 'createdAt': current Unix timestamp
-    Item: {
-      userId: data.userId,
-      orderId: uuid.v1(),
-      createdAt: Date.now(),
-    },
+  const item = {
+    userId: data.userId,
+    orderId: uuid.v1(),
+    orderStatus: 'pending',
+    createdAt: Date.now(),
   };
 
-  try {
-    await dynamoDb.put(params);
-  } catch (err) {
-    return failure({ status: false });
+  const pendingOrders = await Order.query(dynamoDb, data.userId);
+  if (pendingOrders.count > 0) {
+    return success(pendingOrders.Items[0]);
   }
-  return success(params.Item);
+  const result = await Order.put(dynamoDb, item);
+  if (result.success) {
+    return success(result.data);
+  }
+  return failure(result.error);
 };
 
 // eslint-disable-next-line

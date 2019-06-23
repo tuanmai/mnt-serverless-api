@@ -5,7 +5,11 @@
   "main": "index.js",
   "author": "Tuan Mai <perhuman@gmail.com>",
   "license": "MIT",
+  "scripts": {
+    "test": "yarn jest"
+  },
   "devDependencies": {
+    "aws-sdk-mock": "^4.4.0",
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.4",
     "babel-plugin-source-map-support": "^1.0.0",
@@ -15,6 +19,7 @@
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.17.3",
+    "eslint-plugin-jest": "^22.7.1",
     "jest": "^21.2.1",
     "serverless-offline": "^5.4.2",
     "serverless-webpack": "^5.1.0",

@@ -86,6 +86,99 @@
 /************************************************************************/
 /******/ ({
 
+/***/ "./db/order.js":
+/*!*********************!*\
+  !*** ./db/order.js ***!
+  \*********************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _promise = __webpack_require__(/*! babel-runtime/core-js/promise */ "babel-runtime/core-js/promise");
+
+var _promise2 = _interopRequireDefault(_promise);
+
+__webpack_require__(/*! source-map-support/register */ "source-map-support/register");
+
+var _serviceResult = __webpack_require__(/*! ./serviceResult */ "./db/serviceResult.js");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var query = function query(db, userId) {
+  var params = {
+    TableName: 'orders',
+    FilterExpression: 'userId = :userId and orderStatus = :orderStatus',
+    ExpressionAttributeValues: {
+      ':userId': userId,
+      ':orderStatus': 'pending'
+    }
+  };
+
+  return new _promise2.default(function (resolve) {
+    db.scan(params, function (error, result) {
+      if (error) {
+        resolve((0, _serviceResult.failureResult)(error));
+      }
+      resolve((0, _serviceResult.successResult)(result));
+    });
+  });
+};
+
+var put = function put(db, data) {
+  var params = {
+    TableName: 'orders',
+    Item: data
+  };
+
+  return new _promise2.default(function (resolve) {
+    db.put(params, function (error) {
+      if (error) {
+        resolve((0, _serviceResult.failureResult)(error));
+      }
+      resolve((0, _serviceResult.successResult)(data));
+    });
+  });
+};
+
+exports.default = { query: query, put: put };
+
+/***/ }),
+
+/***/ "./db/serviceResult.js":
+/*!*****************************!*\
+  !*** ./db/serviceResult.js ***!
+  \*****************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.failureResult = exports.successResult = undefined;
+
+__webpack_require__(/*! source-map-support/register */ "source-map-support/register");
+
+var successResult = function successResult(data) {
+  return { success: true, data: data };
+};
+var failureResult = function failureResult(error) {
+  return { success: false, error: error };
+};
+
+exports.successResult = successResult;
+exports.failureResult = failureResult;
+
+/***/ }),
+
 /***/ "./order.js":
 /*!******************!*\
   !*** ./order.js ***!
@@ -121,57 +214,64 @@ var _uuid2 = _interopRequireDefault(_uuid);
 
 var _response = __webpack_require__(/*! ./response */ "./response.js");
 
+var _order = __webpack_require__(/*! ./db/order */ "./db/order.js");
+
+var _order2 = _interopRequireDefault(_order);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var dynamoDb = new _awsSdk2.default.DynamoDB.DocumentClient();
 
 var addToCard = function () {
   var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee(event) {
-    var data, params;
+    var data, item, pendingOrders, result;
     return _regenerator2.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            // Request body is passed in as a JSON encoded string in 'event.body'
             data = JSON.parse(event.body);
-            params = {
-              TableName: 'orders',
-              // 'Item' contains the attributes of the item to be created
-              // - 'userId': user identities are federated through the
-              //             Cognito Identity Pool, we will use the identity id
-              //             as the user id of the authenticated user
-              // - 'noteId': a unique uuid
-              // - 'content': parsed from request body
-              // - 'attachment': parsed from request body
-              // - 'createdAt': current Unix timestamp
-              Item: {
-                userId: data.userId,
-                orderId: _uuid2.default.v1(),
-                createdAt: Date.now()
-              }
+            item = {
+              userId: data.userId,
+              orderId: _uuid2.default.v1(),
+              orderStatus: 'pending',
+              createdAt: Date.now()
             };
-            _context.prev = 2;
-            _context.next = 5;
-            return dynamoDb.put(params);
+            _context.next = 4;
+            return _order2.default.query(dynamoDb, data.userId);
 
-          case 5:
-            _context.next = 10;
-            break;
+          case 4:
+            pendingOrders = _context.sent;
+
+            if (!(pendingOrders.count > 0)) {
+              _context.next = 7;
+              break;
+            }
+
+            return _context.abrupt('return', (0, _response.success)(pendingOrders.Items[0]));
 
           case 7:
-            _context.prev = 7;
-            _context.t0 = _context['catch'](2);
-            return _context.abrupt('return', (0, _response.failure)({ status: false }));
+            _context.next = 9;
+            return _order2.default.put(dynamoDb, item);
 
-          case 10:
-            return _context.abrupt('return', (0, _response.success)(params.Item));
+          case 9:
+            result = _context.sent;
 
-          case 11:
+            if (!result.success) {
+              _context.next = 12;
+              break;
+            }
+
+            return _context.abrupt('return', (0, _response.success)(result.data));
+
+          case 12:
+            return _context.abrupt('return', (0, _response.failure)(result.error));
+
+          case 13:
           case 'end':
             return _context.stop();
         }
       }
-    }, _callee, undefined, [[2, 7]]);
+    }, _callee, undefined);
   }));
 
   return function addToCard(_x) {
@@ -250,6 +350,17 @@ module.exports = require("aws-sdk");
 /***/ (function(module, exports) {
 
 module.exports = require("babel-runtime/core-js/json/stringify");
+
+/***/ }),
+
+/***/ "babel-runtime/core-js/promise":
+/*!************************************************!*\
+  !*** external "babel-runtime/core-js/promise" ***!
+  \************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("babel-runtime/core-js/promise");
 
 /***/ }),
 

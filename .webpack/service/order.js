@@ -108,20 +108,30 @@ __webpack_require__(/*! source-map-support/register */ "source-map-support/regis
 
 var _serviceResult = __webpack_require__(/*! ./serviceResult */ "./db/serviceResult.js");
 
+var _awsSdk = __webpack_require__(/*! aws-sdk */ "aws-sdk");
+
+var _awsSdk2 = _interopRequireDefault(_awsSdk);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var query = function query(db, userId) {
+if (process.env.ENV == "test") {
+  _awsSdk2.default.config.update({ region: "us-east-1" });
+}
+
+var dynamoDb = new _awsSdk2.default.DynamoDB.DocumentClient();
+
+var query = function query(userId) {
   var params = {
-    TableName: 'orders',
-    FilterExpression: 'userId = :userId and orderStatus = :orderStatus',
+    TableName: "orders",
+    FilterExpression: "userId = :userId and orderStatus = :orderStatus",
     ExpressionAttributeValues: {
-      ':userId': userId,
-      ':orderStatus': 'pending'
+      ":userId": userId,
+      ":orderStatus": "pending"
     }
   };
 
   return new _promise2.default(function (resolve) {
-    db.scan(params, function (error, result) {
+    dynamoDb.scan(params, function (error, result) {
       if (error) {
         resolve((0, _serviceResult.failureResult)(error));
       }
@@ -130,14 +140,14 @@ var query = function query(db, userId) {
   });
 };
 
-var put = function put(db, data) {
+var put = function put(data) {
   var params = {
-    TableName: 'orders',
+    TableName: "orders",
     Item: data
   };
 
   return new _promise2.default(function (resolve) {
-    db.put(params, function (error) {
+    dynamoDb.put(params, function (error) {
       if (error) {
         resolve((0, _serviceResult.failureResult)(error));
       }
@@ -220,8 +230,6 @@ var _order2 = _interopRequireDefault(_order);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var dynamoDb = new _awsSdk2.default.DynamoDB.DocumentClient();
-
 var addToCard = function () {
   var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee(event) {
     var data, item, pendingOrders, result;
@@ -233,25 +241,25 @@ var addToCard = function () {
             item = {
               userId: data.userId,
               orderId: _uuid2.default.v1(),
-              orderStatus: 'pending',
+              orderStatus: "pending",
               createdAt: Date.now()
             };
             _context.next = 4;
-            return _order2.default.query(dynamoDb, data.userId);
+            return _order2.default.query(data.userId);
 
           case 4:
             pendingOrders = _context.sent;
 
-            if (!(pendingOrders.count > 0)) {
+            if (!(pendingOrders.data.Count > 0)) {
               _context.next = 7;
               break;
             }
 
-            return _context.abrupt('return', (0, _response.success)(pendingOrders.Items[0]));
+            return _context.abrupt("return", (0, _response.success)(pendingOrders.Items[0]));
 
           case 7:
             _context.next = 9;
-            return _order2.default.put(dynamoDb, item);
+            return _order2.default.put(item);
 
           case 9:
             result = _context.sent;
@@ -261,13 +269,13 @@ var addToCard = function () {
               break;
             }
 
-            return _context.abrupt('return', (0, _response.success)(result.data));
+            return _context.abrupt("return", (0, _response.success)(result.data));
 
           case 12:
-            return _context.abrupt('return', (0, _response.failure)(result.error));
+            return _context.abrupt("return", (0, _response.failure)(result.error));
 
           case 13:
-          case 'end':
+          case "end":
             return _context.stop();
         }
       }

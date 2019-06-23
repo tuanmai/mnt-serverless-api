@@ -1,17 +1,24 @@
-import { failureResult, successResult } from './serviceResult';
+import { failureResult, successResult } from "./serviceResult";
+import AWS from "aws-sdk";
 
-const query = (db, userId) => {
+if (process.env.ENV == "test") {
+  AWS.config.update({ region: "us-east-1" });
+}
+
+const dynamoDb = new AWS.DynamoDB.DocumentClient();
+
+const query = userId => {
   const params = {
-    TableName: 'orders',
-    FilterExpression: 'userId = :userId and orderStatus = :orderStatus',
+    TableName: "orders",
+    FilterExpression: "userId = :userId and orderStatus = :orderStatus",
     ExpressionAttributeValues: {
-      ':userId': userId,
-      ':orderStatus': 'pending',
-    },
+      ":userId": userId,
+      ":orderStatus": "pending"
+    }
   };
 
-  return new Promise((resolve) => {
-    db.scan(params, (error, result) => {
+  return new Promise(resolve => {
+    dynamoDb.scan(params, (error, result) => {
       if (error) {
         resolve(failureResult(error));
       }
@@ -20,14 +27,14 @@ const query = (db, userId) => {
   });
 };
 
-const put = (db, data) => {
+const put = data => {
   const params = {
-    TableName: 'orders',
-    Item: data,
+    TableName: "orders",
+    Item: data
   };
 
-  return new Promise((resolve) => {
-    db.put(params, (error) => {
+  return new Promise(resolve => {
+    dynamoDb.put(params, error => {
       if (error) {
         resolve(failureResult(error));
       }

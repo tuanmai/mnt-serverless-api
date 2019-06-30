@@ -114,15 +114,17 @@ var _awsSdk2 = _interopRequireDefault(_awsSdk);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var tableName = "orders";
 if (process.env.ENV == "test") {
   _awsSdk2.default.config.update({ region: "us-east-1" });
+  tableName = "orders-dev";
 }
 
 var dynamoDb = new _awsSdk2.default.DynamoDB.DocumentClient();
 
 var getAll = function getAll() {
   var params = {
-    TableName: "orders"
+    TableName: tableName
   };
 
   return new _promise2.default(function (resolve) {
@@ -137,7 +139,7 @@ var getAll = function getAll() {
 
 var query = function query(userId) {
   var params = {
-    TableName: "orders",
+    TableName: tableName,
     FilterExpression: "userId = :userId and orderStatus = :orderStatus",
     ExpressionAttributeValues: {
       ":userId": userId,
@@ -157,7 +159,7 @@ var query = function query(userId) {
 
 var put = function put(data) {
   var params = {
-    TableName: "orders",
+    TableName: tableName,
     Item: data
   };
 
@@ -173,13 +175,12 @@ var put = function put(data) {
 
 var destroy = function destroy(data) {
   var params = {
-    TableName: "orders",
+    TableName: tableName,
     Key: {
       orderId: data.orderId,
       userId: data.userId
     }
   };
-  console.log(params);
 
   return new _promise2.default(function (resolve) {
     dynamoDb.delete(params, function (error) {
@@ -290,7 +291,7 @@ var addToCard = function () {
               break;
             }
 
-            return _context.abrupt("return", (0, _response.success)(pendingOrders.Items[0]));
+            return _context.abrupt("return", (0, _response.success)(pendingOrders.data.Items[0]));
 
           case 7:
             _context.next = 9;

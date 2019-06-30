@@ -15,7 +15,7 @@ const addToCard = async event => {
 
   const pendingOrders = await Order.query(data.userId);
   if (pendingOrders.data.Count > 0) {
-    return success(pendingOrders.Items[0]);
+    return success(pendingOrders.data.Items[0]);
   }
   const result = await Order.put(item);
   if (result.success) {

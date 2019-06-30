@@ -1,15 +1,17 @@
 import { failureResult, successResult } from "./serviceResult";
 import AWS from "aws-sdk";
 
+let tableName = "orders";
 if (process.env.ENV == "test") {
   AWS.config.update({ region: "us-east-1" });
+  tableName = "orders-dev";
 }
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
 const getAll = () => {
   const params = {
-    TableName: "orders"
+    TableName: tableName
   };
 
   return new Promise(resolve => {
@@ -24,7 +26,7 @@ const getAll = () => {
 
 const query = userId => {
   const params = {
-    TableName: "orders",
+    TableName: tableName,
     FilterExpression: "userId = :userId and orderStatus = :orderStatus",
     ExpressionAttributeValues: {
       ":userId": userId,
@@ -44,7 +46,7 @@ const query = userId => {
 
 const put = data => {
   const params = {
-    TableName: "orders",
+    TableName: tableName,
     Item: data
   };
 
@@ -60,13 +62,12 @@ const put = data => {
 
 const destroy = data => {
   const params = {
-    TableName: "orders",
+    TableName: tableName,
     Key: {
       orderId: data.orderId,
       userId: data.userId
     }
   };
-  console.log(params);
 
   return new Promise(resolve => {
     dynamoDb.delete(params, error => {

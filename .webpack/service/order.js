@@ -238,7 +238,11 @@ exports.failureResult = failureResult;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.addToCard = undefined;
+exports.addItemsToOrder = exports.checkout = exports.addToCard = undefined;
+
+var _extends2 = __webpack_require__(/*! babel-runtime/helpers/extends */ "babel-runtime/helpers/extends");
+
+var _extends3 = _interopRequireDefault(_extends2);
 
 var _regenerator = __webpack_require__(/*! babel-runtime/regenerator */ "babel-runtime/regenerator");
 
@@ -250,13 +254,11 @@ var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
 
 __webpack_require__(/*! source-map-support/register */ "source-map-support/register");
 
-var _awsSdk = __webpack_require__(/*! aws-sdk */ "aws-sdk");
-
-var _awsSdk2 = _interopRequireDefault(_awsSdk);
-
 var _uuid = __webpack_require__(/*! uuid */ "uuid");
 
 var _uuid2 = _interopRequireDefault(_uuid);
+
+var _fp = __webpack_require__(/*! lodash/fp */ "lodash/fp");
 
 var _response = __webpack_require__(/*! ./response */ "./response.js");
 
@@ -268,49 +270,49 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var addToCard = function () {
   var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee(event) {
-    var data, item, pendingOrders, result;
+    var data, pendingOrder, pendingOrders, newItem, newOrder, result;
     return _regenerator2.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
             data = JSON.parse(event.body);
-            item = {
-              userId: data.userId,
-              orderId: _uuid2.default.v1(),
-              orderStatus: "pending",
-              createdAt: Date.now()
-            };
+            pendingOrder = null;
             _context.next = 4;
             return _order2.default.query(data.userId);
 
           case 4:
             pendingOrders = _context.sent;
 
-            if (!(pendingOrders.data.Count > 0)) {
-              _context.next = 7;
-              break;
+            if (pendingOrders.data.Count > 0) {
+              pendingOrder = pendingOrders.data.Items[0];
+            } else {
+              pendingOrder = {
+                userId: data.userId,
+                orderId: _uuid2.default.v1(),
+                orderStatus: "pending",
+                createdAt: Date.now()
+              };
             }
 
-            return _context.abrupt("return", (0, _response.success)(pendingOrders.data.Items[0]));
+            newItem = { itemCode: data.itemCode, itemPrice: data.itemPrice };
+            newOrder = addItemsToOrder(pendingOrder, [newItem]);
+            _context.next = 10;
+            return _order2.default.put(newOrder);
 
-          case 7:
-            _context.next = 9;
-            return _order2.default.put(item);
-
-          case 9:
+          case 10:
             result = _context.sent;
 
             if (!result.success) {
-              _context.next = 12;
+              _context.next = 13;
               break;
             }
 
             return _context.abrupt("return", (0, _response.success)(result.data));
 
-          case 12:
+          case 13:
             return _context.abrupt("return", (0, _response.failure)(result.error));
 
-          case 13:
+          case 14:
           case "end":
             return _context.stop();
         }
@@ -323,8 +325,105 @@ var addToCard = function () {
   };
 }();
 
+var checkout = function () {
+  var _ref2 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(event) {
+    var data, pendingOrders, pendingOrder, newOrder, result;
+    return _regenerator2.default.wrap(function _callee2$(_context2) {
+      while (1) {
+        switch (_context2.prev = _context2.next) {
+          case 0:
+            data = JSON.parse(event.body);
+            _context2.next = 3;
+            return _order2.default.query(data.userId);
+
+          case 3:
+            pendingOrders = _context2.sent;
+
+            if (!(pendingOrders.data.Count == 0)) {
+              _context2.next = 6;
+              break;
+            }
+
+            return _context2.abrupt("return", (0, _response.failure)("Order not found"));
+
+          case 6:
+            pendingOrder = pendingOrders.data.Items[0];
+            newOrder = (0, _extends3.default)({}, pendingOrder, {
+              orderStatus: "checkouted",
+              shippingCost: 0
+            });
+            _context2.next = 10;
+            return _order2.default.put(newOrder);
+
+          case 10:
+            result = _context2.sent;
+
+            if (!result.success) {
+              _context2.next = 13;
+              break;
+            }
+
+            return _context2.abrupt("return", (0, _response.success)(result.data));
+
+          case 13:
+            return _context2.abrupt("return", (0, _response.failure)(result.error));
+
+          case 14:
+          case "end":
+            return _context2.stop();
+        }
+      }
+    }, _callee2, undefined);
+  }));
+
+  return function checkout(_x2) {
+    return _ref2.apply(this, arguments);
+  };
+}();
+
+var addItemsToOrder = function addItemsToOrder(order, items) {
+  var newOrder = (0, _extends3.default)({}, order, {
+    items: [],
+    total: 0
+  });
+  (0, _fp.map)(function (item) {
+    var orderItem = (0, _fp.find)(function (orderItem) {
+      return orderItem.itemCode === item.itemCode;
+    }, order.items);
+    if (orderItem) {
+      newOrder.items.push({
+        itemCode: orderItem.itemCode,
+        count: orderItem.count + 1,
+        total: orderItem.total + item.itemPrice
+      });
+    } else {
+      newOrder.items.push({
+        itemCode: item.itemCode,
+        count: 1,
+        total: item.itemPrice
+      });
+    }
+  }, items);
+
+  (0, _fp.map)(function (item) {
+    var orderItem = (0, _fp.find)(function (orderItem) {
+      return orderItem.itemCode === item.itemCode;
+    }, newOrder.items);
+    if (!orderItem) {
+      newOrder.items.push(item);
+    }
+  }, order.items);
+  var newTotal = (0, _fp.reduce)(function (total, item) {
+    return total + item.total;
+  }, 0, newOrder.items);
+  newOrder.total = newTotal;
+  return newOrder;
+};
+
 // eslint-disable-next-line
 exports.addToCard = addToCard;
+exports.checkout = checkout;
+exports.addItemsToOrder = addItemsToOrder;
 
 /***/ }),
 
@@ -355,8 +454,8 @@ var buildResponse = function buildResponse(statusCode, body) {
   return {
     statusCode: statusCode,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Credentials': true
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Credentials": true
     },
     body: (0, _stringify2.default)(body)
   };
@@ -367,7 +466,7 @@ var success = function success(body) {
 };
 
 var failure = function failure(body) {
-  return buildResponse(500, body);
+  return buildResponse(400, body);
 };
 
 exports.success = success;
@@ -419,6 +518,17 @@ module.exports = require("babel-runtime/helpers/asyncToGenerator");
 
 /***/ }),
 
+/***/ "babel-runtime/helpers/extends":
+/*!************************************************!*\
+  !*** external "babel-runtime/helpers/extends" ***!
+  \************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("babel-runtime/helpers/extends");
+
+/***/ }),
+
 /***/ "babel-runtime/regenerator":
 /*!********************************************!*\
   !*** external "babel-runtime/regenerator" ***!
@@ -427,6 +537,17 @@ module.exports = require("babel-runtime/helpers/asyncToGenerator");
 /***/ (function(module, exports) {
 
 module.exports = require("babel-runtime/regenerator");
+
+/***/ }),
+
+/***/ "lodash/fp":
+/*!****************************!*\
+  !*** external "lodash/fp" ***!
+  \****************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("lodash/fp");
 
 /***/ }),
 

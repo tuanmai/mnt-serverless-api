@@ -9,7 +9,7 @@ describe("Add to card", () => {
       const queryMock = { success: true, data: { Count: 0, Items: [] } };
       const createMock = {
         success: true,
-        data: { id: "order_1", orderStatus: "pending" }
+        data: { id: "order_1", orderStatus: "pending", items: [] }
       };
       const event = {
         body: JSON.stringify({ userId: "123" })
@@ -25,10 +25,10 @@ describe("Add to card", () => {
   });
 
   describe("There is a pending order", () => {
-    it("creates new order", async () => {
+    it("returns old order", async () => {
       const queryMock = {
         success: true,
-        data: { Count: 1, Items: [{ id: "order_1" }] }
+        data: { Count: 1, Items: [{ id: "order_1", items: [] }] }
       };
       const createMock = {
         success: true,
@@ -38,15 +38,17 @@ describe("Add to card", () => {
         body: JSON.stringify({ userId: "123" })
       };
       Order.query.mockReturnValue(Promise.resolve(queryMock));
-      Order.put.mockReturnValue(Promise.resolve(createMock));
       const result = await addToCard(event);
-      const bodyData = JSON.parse(result.body);
-      expect(bodyData.id).toEqual("order_1");
+      expect(Order.put.mock.calls[0][0]).toEqual(
+        expect.objectContaining({
+          id: "order_1"
+        })
+      );
     });
   });
 
   describe("add item", () => {
-    describe("item is not in the current order", () => {
+    describe("there is no pending order", () => {
       it("adds new item to order", async () => {
         const event = {
           body: JSON.stringify({
@@ -65,6 +67,40 @@ describe("Add to card", () => {
             orderStatus: "pending",
             items: [{ itemCode: "combo", count: 1, total: 90000 }],
             total: 90000
+          })
+        );
+      });
+    });
+    describe("there is a pending order", () => {
+      it("adds new item to pending order", async () => {
+        const event = {
+          body: JSON.stringify({
+            userId: "123",
+            itemCode: "combo",
+            itemPrice: 90000
+          })
+        };
+
+        const pendingOrder = {
+          orderId: 123,
+          userId: "123",
+          orderStatus: "pending",
+          items: [{ itemCode: "combo", count: 1, total: 10000 }]
+        };
+
+        const queryMock = {
+          success: true,
+          data: { Count: 1, Items: [pendingOrder] }
+        };
+        Order.query.mockReturnValue(Promise.resolve(queryMock));
+        const result = await addToCard(event);
+        expect(Order.put.mock.calls[0][0]).toEqual(
+          expect.objectContaining({
+            userId: "123",
+            orderId: 123,
+            orderStatus: "pending",
+            items: [{ itemCode: "combo", count: 2, total: 100000 }],
+            total: 100000
           })
         );
       });

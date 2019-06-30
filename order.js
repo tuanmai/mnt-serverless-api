@@ -6,21 +6,22 @@ import Order from "./db/order";
 
 const addToCard = async event => {
   const data = JSON.parse(event.body);
+  let pendingOrder = null;
 
   const pendingOrders = await Order.query(data.userId);
   if (pendingOrders.data.Count > 0) {
-    return success(pendingOrders.data.Items[0]);
+    pendingOrder = pendingOrders.data.Items[0];
+  } else {
+    pendingOrder = {
+      userId: data.userId,
+      orderId: uuid.v1(),
+      orderStatus: "pending",
+      createdAt: Date.now()
+    };
   }
 
-  const order = {
-    userId: data.userId,
-    orderId: uuid.v1(),
-    orderStatus: "pending",
-    createdAt: Date.now()
-  };
-
   const newItem = { itemCode: data.itemCode, itemPrice: data.itemPrice };
-  const newOrder = addItemsToOrder(order, [newItem]);
+  const newOrder = addItemsToOrder(pendingOrder, [newItem]);
 
   const result = await Order.put(newOrder);
   if (result.success) {

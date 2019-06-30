@@ -19,7 +19,10 @@ const addToCard = async event => {
     createdAt: Date.now()
   };
 
-  const result = await Order.put(order);
+  const newItem = { itemCode: data.itemCode, itemPrice: data.itemPrice };
+  const newOrder = addItemsToOrder(order, [newItem]);
+
+  const result = await Order.put(newOrder);
   if (result.success) {
     return success(result.data);
   }

@@ -48,30 +48,46 @@ describe("Add to card", () => {
   describe("add item", () => {
     describe("item is not in the current order", () => {
       it("adds new item to order", async () => {
-        // const event = {
-        //   body: JSON.stringify({
-        //     userId: "123",
-        //     itemCode: "combo",
-        //     itemPrice: 90000
-        //   })
-        // };
-        //
-        // const queryMock = { success: true, data: { Count: 0, Items: [] } };
-        // Order.query.mockReturnValue(Promise.resolve(queryMock));
-        // const result = await addToCard(event);
-        // expect(Order.put.mock.calls[0][0]).toEqual(
-        //   expect.objectContaining({
-        //     userId: "123",
-        //     orderStatus: "pending",
-        //     items: [{ code: "combo", count: 1, total: 90000 }]
-        //   })
-        // );
+        const event = {
+          body: JSON.stringify({
+            userId: "123",
+            itemCode: "combo",
+            itemPrice: 90000
+          })
+        };
+
+        const queryMock = { success: true, data: { Count: 0, Items: [] } };
+        Order.query.mockReturnValue(Promise.resolve(queryMock));
+        const result = await addToCard(event);
+        expect(Order.put.mock.calls[0][0]).toEqual(
+          expect.objectContaining({
+            userId: "123",
+            orderStatus: "pending",
+            items: [{ itemCode: "combo", count: 1, total: 90000 }],
+            total: 90000
+          })
+        );
       });
     });
   });
 });
 
 describe("addItemsToOrder", () => {
+  describe("items is null", () => {
+    it("does not raise error", () => {
+      const items = null;
+      const order = { id: 123 };
+      const newOrder = addItemsToOrder(order, items);
+      expect(newOrder).toEqual(
+        expect.objectContaining({
+          id: 123,
+          items: [],
+          total: 0
+        })
+      );
+    });
+  });
+
   describe("haven't add item to order", () => {
     it("add items to order", () => {
       const items = [{ itemCode: "combo", itemPrice: 90000 }];

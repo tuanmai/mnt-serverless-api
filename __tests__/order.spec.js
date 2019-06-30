@@ -1,4 +1,4 @@
-import { addItemsToOrder, addToCard } from "../order";
+import { addItemsToOrder, addToCard, checkout } from "../order";
 import Order from "../db/order";
 
 jest.mock("../db/order");
@@ -104,6 +104,42 @@ describe("Add to card", () => {
           })
         );
       });
+    });
+  });
+});
+
+describe("checkout", () => {
+  describe("order not found", () => {
+    it("returns error", async () => {
+      const queryMock = { success: true, data: { Count: 0, Items: [] } };
+      const event = {
+        body: JSON.stringify({ userId: "123" })
+      };
+      Order.query.mockReturnValue(Promise.resolve(queryMock));
+      const result = await checkout(event);
+      const bodyData = JSON.parse(result.body);
+      expect(bodyData).toEqual("Order not found");
+      expect(result.statusCode).toEqual(400);
+    });
+  });
+
+  describe("order has found", () => {
+    it("change order status to checkouted", async () => {
+      const order = { id: 123, orderStatus: "pending" };
+      const queryMock = { success: true, data: { Count: 1, Items: [order] } };
+      const event = {
+        body: JSON.stringify({ userId: "123", district: "BT" })
+      };
+      Order.query.mockReturnValue(Promise.resolve(queryMock));
+      const result = await checkout(event);
+      const bodyData = JSON.parse(result.body);
+      expect(Order.put.mock.calls[0][0]).toEqual(
+        expect.objectContaining({
+          id: 123,
+          orderStatus: "checkouted",
+          shippingCost: 0
+        })
+      );
     });
   });
 });

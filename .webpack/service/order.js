@@ -238,7 +238,7 @@ exports.failureResult = failureResult;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.addItemsToOrder = exports.getOrder = exports.checkout = exports.addToCard = undefined;
+exports.addItemsToOrder = exports.getOrder = exports.cancelOrder = exports.checkout = exports.addToCard = undefined;
 
 var _extends2 = __webpack_require__(/*! babel-runtime/helpers/extends */ "babel-runtime/helpers/extends");
 
@@ -417,6 +417,61 @@ var checkout = function () {
   };
 }();
 
+var cancelOrder = function () {
+  var _ref4 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee4(event) {
+    var data, pendingOrders, pendingOrder, newOrder, result;
+    return _regenerator2.default.wrap(function _callee4$(_context4) {
+      while (1) {
+        switch (_context4.prev = _context4.next) {
+          case 0:
+            data = JSON.parse(event.body);
+            _context4.next = 3;
+            return _order2.default.query(data.userId);
+
+          case 3:
+            pendingOrders = _context4.sent;
+
+            if (!(pendingOrders.data.Count == 0)) {
+              _context4.next = 6;
+              break;
+            }
+
+            return _context4.abrupt("return", (0, _response.failure)("Order not found"));
+
+          case 6:
+            pendingOrder = pendingOrders.data.Items[0];
+            newOrder = (0, _extends3.default)({}, pendingOrder, {
+              orderStatus: "canceled"
+            });
+            _context4.next = 10;
+            return _order2.default.put(newOrder);
+
+          case 10:
+            result = _context4.sent;
+
+            if (!result.success) {
+              _context4.next = 13;
+              break;
+            }
+
+            return _context4.abrupt("return", (0, _response.success)(result.data));
+
+          case 13:
+            return _context4.abrupt("return", (0, _response.failure)(result.error));
+
+          case 14:
+          case "end":
+            return _context4.stop();
+        }
+      }
+    }, _callee4, undefined);
+  }));
+
+  return function cancelOrder(_x4) {
+    return _ref4.apply(this, arguments);
+  };
+}();
+
 var addItemsToOrder = function addItemsToOrder(order, items) {
   var newOrder = (0, _extends3.default)({}, order, {
     items: [],
@@ -459,6 +514,7 @@ var addItemsToOrder = function addItemsToOrder(order, items) {
 // eslint-disable-next-line
 exports.addToCard = addToCard;
 exports.checkout = checkout;
+exports.cancelOrder = cancelOrder;
 exports.getOrder = getOrder;
 exports.addItemsToOrder = addItemsToOrder;
 

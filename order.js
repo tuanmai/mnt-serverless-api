@@ -65,6 +65,26 @@ const checkout = async event => {
   return failure(result.error);
 };
 
+const cancelOrder = async event => {
+  const data = JSON.parse(event.body);
+
+  const pendingOrders = await Order.query(data.userId);
+  if (pendingOrders.data.Count == 0) {
+    return failure("Order not found");
+  }
+  const pendingOrder = pendingOrders.data.Items[0];
+  const newOrder = {
+    ...pendingOrder,
+    orderStatus: "canceled"
+  };
+
+  const result = await Order.put(newOrder);
+  if (result.success) {
+    return success(result.data);
+  }
+  return failure(result.error);
+};
+
 const addItemsToOrder = (order, items) => {
   const newOrder = {
     ...order,
@@ -110,4 +130,4 @@ const addItemsToOrder = (order, items) => {
 };
 
 // eslint-disable-next-line
-export { addToCard, checkout, getOrder, addItemsToOrder };
+export { addToCard, checkout, cancelOrder, getOrder, addItemsToOrder };

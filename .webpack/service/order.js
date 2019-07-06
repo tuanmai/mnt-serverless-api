@@ -399,7 +399,7 @@ var checkout = function () {
               break;
             }
 
-            return _context3.abrupt("return", (0, _response.message)("Mua h\xE0ng th\xE0nh c\xF4ng, \u0111\u01A1n h\xE0ng c\u1EE7a b\u1EA1n gi\xE1 " + newOrder.total));
+            return _context3.abrupt("return", (0, _response.sendMessage)("Mua h\xE0ng th\xE0nh c\xF4ng, \u0111\u01A1n h\xE0ng c\u1EE7a b\u1EA1n gi\xE1 " + newOrder.total));
 
           case 13:
             return _context3.abrupt("return", (0, _response.failure)(result.error));

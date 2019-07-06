@@ -30,6 +30,20 @@ const addToCard = async event => {
   return failure(result.error);
 };
 
+const getOrder = async event => {
+  let pendingOrder = null;
+
+  const pendingOrders = await Order.query(event.pathParameters.userId);
+  console.log(pendingOrders);
+  if (pendingOrders.data.Count > 0) {
+    pendingOrder = pendingOrders.data.Items[0];
+  } else {
+    pendingOrder = {};
+  }
+
+  return success(pendingOrder);
+};
+
 const checkout = async event => {
   const data = JSON.parse(event.body);
 
@@ -96,4 +110,4 @@ const addItemsToOrder = (order, items) => {
 };
 
 // eslint-disable-next-line
-export { addToCard, checkout, addItemsToOrder };
+export { addToCard, checkout, getOrder, addItemsToOrder };

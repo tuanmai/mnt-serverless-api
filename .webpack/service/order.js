@@ -238,7 +238,7 @@ exports.failureResult = failureResult;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.addItemsToOrder = exports.checkout = exports.addToCard = undefined;
+exports.addItemsToOrder = exports.getOrder = exports.checkout = exports.addToCard = undefined;
 
 var _extends2 = __webpack_require__(/*! babel-runtime/helpers/extends */ "babel-runtime/helpers/extends");
 
@@ -325,50 +325,30 @@ var addToCard = function () {
   };
 }();
 
-var checkout = function () {
+var getOrder = function () {
   var _ref2 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(event) {
-    var data, pendingOrders, pendingOrder, newOrder, result;
+    var pendingOrder, pendingOrders;
     return _regenerator2.default.wrap(function _callee2$(_context2) {
       while (1) {
         switch (_context2.prev = _context2.next) {
           case 0:
-            data = JSON.parse(event.body);
+            pendingOrder = null;
             _context2.next = 3;
-            return _order2.default.query(data.userId);
+            return _order2.default.query(event.pathParameters.userId);
 
           case 3:
             pendingOrders = _context2.sent;
 
-            if (!(pendingOrders.data.Count == 0)) {
-              _context2.next = 6;
-              break;
+            console.log(pendingOrders);
+            if (pendingOrders.data.Count > 0) {
+              pendingOrder = pendingOrders.data.Items[0];
+            } else {
+              pendingOrder = {};
             }
 
-            return _context2.abrupt("return", (0, _response.failure)("Order not found"));
+            return _context2.abrupt("return", (0, _response.success)(pendingOrder));
 
-          case 6:
-            pendingOrder = pendingOrders.data.Items[0];
-            newOrder = (0, _extends3.default)({}, pendingOrder, {
-              orderStatus: "checkouted",
-              shippingCost: 0
-            });
-            _context2.next = 10;
-            return _order2.default.put(newOrder);
-
-          case 10:
-            result = _context2.sent;
-
-            if (!result.success) {
-              _context2.next = 13;
-              break;
-            }
-
-            return _context2.abrupt("return", (0, _response.success)(result.data));
-
-          case 13:
-            return _context2.abrupt("return", (0, _response.failure)(result.error));
-
-          case 14:
+          case 7:
           case "end":
             return _context2.stop();
         }
@@ -376,8 +356,64 @@ var checkout = function () {
     }, _callee2, undefined);
   }));
 
-  return function checkout(_x2) {
+  return function getOrder(_x2) {
     return _ref2.apply(this, arguments);
+  };
+}();
+
+var checkout = function () {
+  var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee3(event) {
+    var data, pendingOrders, pendingOrder, newOrder, result;
+    return _regenerator2.default.wrap(function _callee3$(_context3) {
+      while (1) {
+        switch (_context3.prev = _context3.next) {
+          case 0:
+            data = JSON.parse(event.body);
+            _context3.next = 3;
+            return _order2.default.query(data.userId);
+
+          case 3:
+            pendingOrders = _context3.sent;
+
+            if (!(pendingOrders.data.Count == 0)) {
+              _context3.next = 6;
+              break;
+            }
+
+            return _context3.abrupt("return", (0, _response.failure)("Order not found"));
+
+          case 6:
+            pendingOrder = pendingOrders.data.Items[0];
+            newOrder = (0, _extends3.default)({}, pendingOrder, {
+              orderStatus: "checkouted",
+              shippingCost: 0
+            });
+            _context3.next = 10;
+            return _order2.default.put(newOrder);
+
+          case 10:
+            result = _context3.sent;
+
+            if (!result.success) {
+              _context3.next = 13;
+              break;
+            }
+
+            return _context3.abrupt("return", (0, _response.success)(result.data));
+
+          case 13:
+            return _context3.abrupt("return", (0, _response.failure)(result.error));
+
+          case 14:
+          case "end":
+            return _context3.stop();
+        }
+      }
+    }, _callee3, undefined);
+  }));
+
+  return function checkout(_x3) {
+    return _ref3.apply(this, arguments);
   };
 }();
 
@@ -423,6 +459,7 @@ var addItemsToOrder = function addItemsToOrder(order, items) {
 // eslint-disable-next-line
 exports.addToCard = addToCard;
 exports.checkout = checkout;
+exports.getOrder = getOrder;
 exports.addItemsToOrder = addItemsToOrder;
 
 /***/ }),

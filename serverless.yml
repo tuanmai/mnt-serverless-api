@@ -78,6 +78,12 @@ functions:
       - http:
           path: orders/checkout
           method: post
+  get:
+    handler: order.getOrder
+    events:
+      - http:
+          path: orders/{userId}
+          method: get
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events

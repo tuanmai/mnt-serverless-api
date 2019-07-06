@@ -556,7 +556,9 @@ var buildResponse = function buildResponse(statusCode, body) {
 
 var sendMessage = function sendMessage(message) {
   var formatedMessaged = {
-    messages: [message]
+    messages: [{
+      text: message
+    }]
   };
   return buildResponse(200, formatedMessaged);
 };

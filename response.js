@@ -9,7 +9,11 @@ const buildResponse = (statusCode, body) => ({
 
 const sendMessage = message => {
   const formatedMessaged = {
-    messages: [message]
+    messages: [
+      {
+        text: message
+      }
+    ]
   };
   return buildResponse(200, formatedMessaged);
 };

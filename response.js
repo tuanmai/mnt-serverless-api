@@ -16,6 +16,9 @@ const sendMessage = message => {
 
 const success = body => buildResponse(200, body);
 
-const failure = body => buildResponse(400, { error: body });
+const failure = body =>
+  sendMessage(
+    "Hix, hệ thống thiện tại đang bị lỗi 😢. Bạn vui lòng liên hệ trực tiếp tư vấn viên để được hỗ trợ"
+  );
 
 export { success, failure, sendMessage };

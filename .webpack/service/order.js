@@ -566,7 +566,7 @@ var success = function success(body) {
 };
 
 var failure = function failure(body) {
-  return buildResponse(400, { error: body });
+  return sendMessage("Hix, hệ thống thiện tại đang bị lỗi 😢. Bạn vui lòng liên hệ trực tiếp tư vấn viên để được hỗ trợ");
 };
 
 exports.success = success;

@@ -1,7 +1,8 @@
 import uuid from "uuid";
+
 import { map, find, reduce } from "lodash/fp";
 
-import { failure, success } from "./response";
+import { failure, success, message } from "./response";
 import Order from "./db/order";
 
 const addToCard = async event => {
@@ -60,7 +61,9 @@ const checkout = async event => {
 
   const result = await Order.put(newOrder);
   if (result.success) {
-    return success(result.data);
+    return message(
+      `Mua hàng thành công, đơn hàng của bạn giá ${newOrder.total}`
+    );
   }
   return failure(result.error);
 };

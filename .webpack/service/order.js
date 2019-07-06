@@ -399,7 +399,7 @@ var checkout = function () {
               break;
             }
 
-            return _context3.abrupt("return", (0, _response.success)(result.data));
+            return _context3.abrupt("return", (0, _response.message)("Mua h\xE0ng th\xE0nh c\xF4ng, \u0111\u01A1n h\xE0ng c\u1EE7a b\u1EA1n gi\xE1 " + newOrder.total));
 
           case 13:
             return _context3.abrupt("return", (0, _response.failure)(result.error));
@@ -533,7 +533,7 @@ exports.addItemsToOrder = addItemsToOrder;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.failure = exports.success = undefined;
+exports.message = exports.failure = exports.success = undefined;
 
 var _stringify = __webpack_require__(/*! babel-runtime/core-js/json/stringify */ "babel-runtime/core-js/json/stringify");
 
@@ -554,6 +554,13 @@ var buildResponse = function buildResponse(statusCode, body) {
   };
 };
 
+var sendMessage = function sendMessage(message) {
+  var formatedMessaged = {
+    messages: [message]
+  };
+  return buildResponse(formatedMessaged);
+};
+
 var success = function success(body) {
   return buildResponse(200, body);
 };
@@ -564,6 +571,7 @@ var failure = function failure(body) {
 
 exports.success = success;
 exports.failure = failure;
+exports.message = message;
 
 /***/ }),
 

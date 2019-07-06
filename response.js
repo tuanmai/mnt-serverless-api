@@ -11,7 +11,7 @@ const sendMessage = message => {
   const formatedMessaged = {
     messages: [message]
   };
-  return buildResponse(formatedMessaged);
+  return buildResponse(200, formatedMessaged);
 };
 
 const success = body => buildResponse(200, body);

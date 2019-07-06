@@ -558,7 +558,7 @@ var sendMessage = function sendMessage(message) {
   var formatedMessaged = {
     messages: [message]
   };
-  return buildResponse(formatedMessaged);
+  return buildResponse(200, formatedMessaged);
 };
 
 var success = function success(body) {

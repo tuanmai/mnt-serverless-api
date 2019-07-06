@@ -466,7 +466,7 @@ var success = function success(body) {
 };
 
 var failure = function failure(body) {
-  return buildResponse(400, body);
+  return buildResponse(400, { error: body });
 };
 
 exports.success = success;

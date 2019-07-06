@@ -9,6 +9,6 @@ const buildResponse = (statusCode, body) => ({
 
 const success = body => buildResponse(200, body);
 
-const failure = body => buildResponse(400, body);
+const failure = body => buildResponse(400, { error: body });
 
 export { success, failure };

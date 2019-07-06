@@ -18,4 +18,4 @@ const success = body => buildResponse(200, body);
 
 const failure = body => buildResponse(400, { error: body });
 
-export { success, failure, message };
+export { success, failure, sendMessage };

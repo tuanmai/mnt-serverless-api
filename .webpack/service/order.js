@@ -533,7 +533,7 @@ exports.addItemsToOrder = addItemsToOrder;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.message = exports.failure = exports.success = undefined;
+exports.sendMessage = exports.failure = exports.success = undefined;
 
 var _stringify = __webpack_require__(/*! babel-runtime/core-js/json/stringify */ "babel-runtime/core-js/json/stringify");
 
@@ -571,7 +571,7 @@ var failure = function failure(body) {
 
 exports.success = success;
 exports.failure = failure;
-exports.message = message;
+exports.sendMessage = sendMessage;
 
 /***/ }),
 

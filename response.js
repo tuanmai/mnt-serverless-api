@@ -38,10 +38,10 @@ const sendReceiptMessage = order => {
   Phí ship: ${order.shippingCost}.
   Địa chỉ: ${addressMessage}.
   SĐT: ${order.phone}
+  Bạn lưu ý giúp mình chính sách ship như mọi khi bạn nhé. có gì thay đổi nhớ báo mình trước t7 bạn nha ❤ , à bên mình ship thứ 2,3 tuần sau bạn nhớ giữ liên lạc giúp mình nhen.
   `;
-  const message2 = `Bạn lưu ý giúp mình chính sách ship như mọi khi bạn nhé. có gì thay đổi nhớ báo mình trước t7 bạn nha ❤ , à bên mình ship thứ 2,3 tuần sau bạn nhớ giữ liên lạc giúp mình nhen.`;
 
-  return sendMessages([message1, message2]);
+  return sendMessage(message1);
 };
 
 const sendReceipt = order => {

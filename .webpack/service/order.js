@@ -597,10 +597,9 @@ var sendReceiptMessage = function sendReceiptMessage(order) {
     return item.count + " " + item.itemCode + " gi\xE1 " + item.total;
   }, order.items).join(", ");
   var addressMessage = order.addressMessage + ", Ph\u01B0\u1EDDng " + order.ward + ", Qu\u1EADn " + order.district;
-  var message1 = "M\xECnh ch\u1ED1t order cho b\u1EA1n nha: C\u1EE7a b\u1EA1n l\xE0 " + elementsMessage + ".\n  Ph\xED ship: " + order.shippingCost + ".\n  \u0110\u1ECBa ch\u1EC9: " + addressMessage + ".\n  S\u0110T: " + order.phone + "\n  ";
-  var message2 = "B\u1EA1n l\u01B0u \xFD gi\xFAp m\xECnh ch\xEDnh s\xE1ch ship nh\u01B0 m\u1ECDi khi b\u1EA1n nh\xE9. c\xF3 g\xEC thay \u0111\u1ED5i nh\u1EDB b\xE1o m\xECnh tr\u01B0\u1EDBc t7 b\u1EA1n nha \u2764 , \xE0 b\xEAn m\xECnh ship th\u1EE9 2,3 tu\u1EA7n sau b\u1EA1n nh\u1EDB gi\u1EEF li\xEAn l\u1EA1c gi\xFAp m\xECnh nhen.";
+  var message1 = "M\xECnh ch\u1ED1t order cho b\u1EA1n nha: C\u1EE7a b\u1EA1n l\xE0 " + elementsMessage + ".\n  Ph\xED ship: " + order.shippingCost + ".\n  \u0110\u1ECBa ch\u1EC9: " + addressMessage + ".\n  S\u0110T: " + order.phone + "\n  B\u1EA1n l\u01B0u \xFD gi\xFAp m\xECnh ch\xEDnh s\xE1ch ship nh\u01B0 m\u1ECDi khi b\u1EA1n nh\xE9. c\xF3 g\xEC thay \u0111\u1ED5i nh\u1EDB b\xE1o m\xECnh tr\u01B0\u1EDBc t7 b\u1EA1n nha \u2764 , \xE0 b\xEAn m\xECnh ship th\u1EE9 2,3 tu\u1EA7n sau b\u1EA1n nh\u1EDB gi\u1EEF li\xEAn l\u1EA1c gi\xFAp m\xECnh nhen.\n  ";
 
-  return sendMessages([message1, message2]);
+  return sendMessage(message1);
 };
 
 var sendReceipt = function sendReceipt(order) {

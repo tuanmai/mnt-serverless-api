@@ -26,6 +26,8 @@ const sendMessages = messages => {
   return buildResponse(200, formatedMessaged);
 };
 
+const formatMoney = price => `${price / 1000}k`;
+
 const sendReceiptMessage = order => {
   const elementsMessage = map(
     item => `${item.count} ${item.itemCode} giá ${item.total}`,
@@ -35,8 +37,10 @@ const sendReceiptMessage = order => {
     order.district
   }`;
   const message1 = `Mình chốt order cho bạn nha: Của bạn là ${elementsMessage}.
-Phí ship 🚚: ${order.shippingCost}.
-Tổng cộng 💰: ${order.total + order.shippingCost}.
+Phí ship 🚚: ${
+    order.shippingCost === 0 ? "Free ship" : formatMoney(order.shippingCost)
+  }.
+Tổng cộng 💰: ${formatMoney(order.total + order.shippingCost)}.
 Địa chỉ 🏠: ${addressMessage}.
 SĐT 📱: ${order.phone}
 Mang thai 👼: ${isEmpty(order.bau) ? "Không" : "Có"},

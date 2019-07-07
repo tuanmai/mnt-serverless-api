@@ -395,16 +395,17 @@ var checkout = function () {
             result = _context3.sent;
 
             if (!result.success) {
-              _context3.next = 13;
+              _context3.next = 14;
               break;
             }
 
-            return _context3.abrupt("return", (0, _response.sendMessage)("Mua h\xE0ng th\xE0nh c\xF4ng, \u0111\u01A1n h\xE0ng c\u1EE7a b\u1EA1n gi\xE1 " + newOrder.total));
-
-          case 13:
-            return _context3.abrupt("return", (0, _response.failure)(result.error));
+            console.log(result);
+            return _context3.abrupt("return", (0, _response.sendReceipt)(result.data));
 
           case 14:
+            return _context3.abrupt("return", (0, _response.failure)(result.error));
+
+          case 15:
           case "end":
             return _context3.stop();
         }
@@ -533,13 +534,15 @@ exports.addItemsToOrder = addItemsToOrder;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.sendMessage = exports.failure = exports.success = undefined;
+exports.sendReceipt = exports.sendMessage = exports.failure = exports.success = undefined;
 
 var _stringify = __webpack_require__(/*! babel-runtime/core-js/json/stringify */ "babel-runtime/core-js/json/stringify");
 
 var _stringify2 = _interopRequireDefault(_stringify);
 
 __webpack_require__(/*! source-map-support/register */ "source-map-support/register");
+
+var _fp = __webpack_require__(/*! lodash/fp */ "lodash/fp");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -563,6 +566,46 @@ var sendMessage = function sendMessage(message) {
   return buildResponse(200, formatedMessaged);
 };
 
+var sendReceipt = function sendReceipt(order) {
+  var addressMessage = {
+    street_1: order.address,
+    street_2: order.ward + ", " + order.district
+  };
+  var summaryMessage = {
+    subtotal: order.total,
+    shipping_cost: order.shippingCost,
+    total_cost: order.total + order.shippingCost
+  };
+  var elementsMessage = (0, _fp.map)(function (item) {
+    return {
+      title: item.itemCode,
+      quantity: item.count,
+      price: item.total / item.count,
+      currency: "VND"
+    };
+  }, order.items);
+
+  var formatedMessaged = {
+    messages: [{
+      attachment: {
+        type: "template",
+        payload: {
+          template_type: "receipt",
+          recipient_name: order.userName,
+          order_number: order.orderId,
+          currency: "VND",
+          payment_method: "COD",
+          address: addressMessage,
+          summary: summaryMessage,
+          elements: elementsMessage
+        }
+      }
+    }]
+  };
+
+  return buildResponse(200, formatedMessaged);
+};
+
 var success = function success(body) {
   return buildResponse(200, body);
 };
@@ -574,6 +617,7 @@ var failure = function failure(body) {
 exports.success = success;
 exports.failure = failure;
 exports.sendMessage = sendMessage;
+exports.sendReceipt = sendReceipt;
 
 /***/ }),
 

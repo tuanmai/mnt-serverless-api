@@ -21,7 +21,7 @@ const sendMessage = message => {
 
 const sendReceipt = order => {
   const addressMessage = {
-    street_1: order.address,
+    street_1: order.address || "",
     street_2: `${order.ward}, ${order.district}`
   };
   const summaryMessage = {
@@ -46,7 +46,7 @@ const sendReceipt = order => {
           type: "template",
           payload: {
             template_type: "receipt",
-            recipient_name: order.userName,
+            recipient_name: order.userName || "Khách hàng",
             order_number: order.orderId,
             currency: "VND",
             payment_method: "COD",

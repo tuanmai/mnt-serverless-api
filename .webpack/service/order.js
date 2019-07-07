@@ -568,7 +568,7 @@ var sendMessage = function sendMessage(message) {
 
 var sendReceipt = function sendReceipt(order) {
   var addressMessage = {
-    street_1: order.address,
+    street_1: order.address || "",
     street_2: order.ward + ", " + order.district
   };
   var summaryMessage = {
@@ -591,7 +591,7 @@ var sendReceipt = function sendReceipt(order) {
         type: "template",
         payload: {
           template_type: "receipt",
-          recipient_name: order.userName,
+          recipient_name: order.userName || "Khách hàng",
           order_number: order.orderId,
           currency: "VND",
           payment_method: "COD",

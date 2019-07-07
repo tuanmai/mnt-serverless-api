@@ -35,11 +35,13 @@ const sendReceiptMessage = order => {
     order.district
   }`;
   const message1 = `Mình chốt order cho bạn nha: Của bạn là ${elementsMessage}.
-Phí ship: ${order.shippingCost}.
-Địa chỉ: ${addressMessage}.
-SĐT: ${order.phone}
-Mang thai: ${isEmpty(order.bau) ? "Không" : "Có"},
-Dị ứng: ${isEmpty(order.di_ung) ? "Không" : order.di_ung},
+Phí ship 🚚: ${order.shippingCost}.
+Tổng cộng 💰: ${order.total + order.shippingCost}.
+Địa chỉ 🏠: ${addressMessage}.
+SĐT 📱: ${order.phone}
+Mang thai 👼: ${isEmpty(order.bau) ? "Không" : "Có"},
+Dị ứng 🤢: ${isEmpty(order.di_ung) ? "Không" : order.di_ung},
+Ghi chú: ${order.note}
 Bạn lưu ý giúp mình chính sách ship như mọi khi bạn nhé. có gì thay đổi nhớ báo mình trước t7 bạn nha ❤ , à bên mình ship thứ 2,3 tuần sau bạn nhớ giữ liên lạc giúp mình nhen.
   `;
 

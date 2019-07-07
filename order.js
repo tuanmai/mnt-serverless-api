@@ -2,7 +2,7 @@ import uuid from "uuid";
 
 import { map, find, reduce } from "lodash/fp";
 
-import { failure, sendReceipt, success } from "./response";
+import { failure, sendReceiptMessage, success } from "./response";
 import Order from "./db/order";
 
 const addToCard = async event => {
@@ -60,9 +60,10 @@ const checkout = async event => {
   };
 
   const result = await Order.put(newOrder);
+  console.log(result);
+
   if (result.success) {
-    console.log(result);
-    return sendReceipt(result.data);
+    return sendReceiptMessage(result.data);
   }
   return failure(result.error);
 };

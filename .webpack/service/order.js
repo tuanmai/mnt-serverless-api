@@ -394,13 +394,14 @@ var checkout = function () {
           case 10:
             result = _context3.sent;
 
+            console.log(result);
+
             if (!result.success) {
               _context3.next = 14;
               break;
             }
 
-            console.log(result);
-            return _context3.abrupt("return", (0, _response.sendReceipt)(result.data));
+            return _context3.abrupt("return", (0, _response.sendReceiptMessage)(result.data));
 
           case 14:
             return _context3.abrupt("return", (0, _response.failure)(result.error));
@@ -534,7 +535,7 @@ exports.addItemsToOrder = addItemsToOrder;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.sendReceipt = exports.sendMessage = exports.failure = exports.success = undefined;
+exports.sendReceiptMessage = exports.sendReceipt = exports.sendMessage = exports.failure = exports.success = undefined;
 
 var _stringify = __webpack_require__(/*! babel-runtime/core-js/json/stringify */ "babel-runtime/core-js/json/stringify");
 
@@ -564,6 +565,26 @@ var sendMessage = function sendMessage(message) {
     }]
   };
   return buildResponse(200, formatedMessaged);
+};
+
+var sendMessages = function sendMessages(messages) {
+  var formatedMessaged = {
+    messages: [(0, _fp.map)(function (message) {
+      return { text: message };
+    }, messages)]
+  };
+  return buildResponse(200, formatedMessaged);
+};
+
+var sendReceiptMessage = function sendReceiptMessage(order) {
+  var elementsMessage = (0, _fp.map)(function (item) {
+    return item.count + " " + item.itemCode + " gi\xE1 " + item.total;
+  }, order.items).join(", ");
+  var addressMessage = order.addressMessage + ", Ph\u01B0\u1EDDng " + order.ward + ", Qu\u1EADn " + order.district;
+  var message1 = "M\xECnh ch\u1ED1t order cho b\u1EA1n nha: C\u1EE7a b\u1EA1n l\xE0 " + elementsMessage + ".\n  Ph\xED ship: " + order.shippingCost + ".\n  \u0110\u1ECBa ch\u1EC9: " + addressMessage + ".\n  S\u0110T: " + order.phone + "\n  ";
+  var message2 = "B\u1EA1n l\u01B0u \xFD gi\xFAp m\xECnh ch\xEDnh s\xE1ch ship nh\u01B0 m\u1ECDi khi b\u1EA1n nh\xE9. c\xF3 g\xEC thay \u0111\u1ED5i nh\u1EDB b\xE1o m\xECnh tr\u01B0\u1EDBc t7 b\u1EA1n nha \u2764 , \xE0 b\xEAn m\xECnh ship th\u1EE9 2,3 tu\u1EA7n sau b\u1EA1n nh\u1EDB gi\u1EEF li\xEAn l\u1EA1c gi\xFAp m\xECnh nhen.";
+
+  return sendMessages([message1, message2]);
 };
 
 var sendReceipt = function sendReceipt(order) {
@@ -618,6 +639,7 @@ exports.success = success;
 exports.failure = failure;
 exports.sendMessage = sendMessage;
 exports.sendReceipt = sendReceipt;
+exports.sendReceiptMessage = sendReceiptMessage;
 
 /***/ }),
 

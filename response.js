@@ -30,7 +30,7 @@ const formatMoney = price => `${price / 1000}k`;
 
 const sendReceiptMessage = order => {
   const elementsMessage = map(
-    item => `${item.count} ${item.itemCode} giá ${item.total}`,
+    item => `${item.count} ${item.itemCode} giá ${formatMoney(item.total)}`,
     order.items
   ).join(", ");
   const addressMessage = `${order.address}, Phường ${order.ward}, Quận ${

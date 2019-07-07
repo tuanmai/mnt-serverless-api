@@ -275,12 +275,13 @@ var addToCard = function () {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
+            _context.prev = 0;
             data = JSON.parse(event.body);
             pendingOrder = null;
-            _context.next = 4;
+            _context.next = 5;
             return _order2.default.query(data.userId);
 
-          case 4:
+          case 5:
             pendingOrders = _context.sent;
 
             if (pendingOrders.data.Count > 0) {
@@ -296,28 +297,35 @@ var addToCard = function () {
 
             newItem = { itemCode: data.itemCode, itemPrice: data.itemPrice };
             newOrder = addItemsToOrder(pendingOrder, [newItem]);
-            _context.next = 10;
+            _context.next = 11;
             return _order2.default.put(newOrder);
 
-          case 10:
+          case 11:
             result = _context.sent;
 
             if (!result.success) {
-              _context.next = 13;
+              _context.next = 14;
               break;
             }
 
             return _context.abrupt("return", (0, _response.success)(result.data));
 
-          case 13:
+          case 14:
             return _context.abrupt("return", (0, _response.failure)(result.error));
 
-          case 14:
+          case 17:
+            _context.prev = 17;
+            _context.t0 = _context["catch"](0);
+
+            console.log(_context.t0);
+            return _context.abrupt("return", (0, _response.failure)(_context.t0));
+
+          case 21:
           case "end":
             return _context.stop();
         }
       }
-    }, _callee, undefined);
+    }, _callee, undefined, [[0, 17]]);
   }));
 
   return function addToCard(_x) {
@@ -368,50 +376,58 @@ var checkout = function () {
       while (1) {
         switch (_context3.prev = _context3.next) {
           case 0:
+            _context3.prev = 0;
             data = JSON.parse(event.body);
-            _context3.next = 3;
+            _context3.next = 4;
             return _order2.default.query(data.userId);
 
-          case 3:
+          case 4:
             pendingOrders = _context3.sent;
 
             if (!(pendingOrders.data.Count == 0)) {
-              _context3.next = 6;
+              _context3.next = 7;
               break;
             }
 
             return _context3.abrupt("return", (0, _response.failure)("Order not found"));
 
-          case 6:
+          case 7:
             pendingOrder = pendingOrders.data.Items[0];
             newOrder = (0, _extends3.default)({}, pendingOrder, {
               orderStatus: "checkouted",
               shippingCost: 0
             });
-            _context3.next = 10;
+            _context3.next = 11;
             return _order2.default.put(newOrder);
 
-          case 10:
+          case 11:
             result = _context3.sent;
 
             console.log(result);
 
             if (!result.success) {
-              _context3.next = 14;
+              _context3.next = 15;
               break;
             }
 
             return _context3.abrupt("return", (0, _response.sendReceiptMessage)(result.data));
 
-          case 14:
+          case 15:
             return _context3.abrupt("return", (0, _response.failure)(result.error));
 
-          case 15:
+          case 18:
+            _context3.prev = 18;
+            _context3.t0 = _context3["catch"](0);
+
+            console.log(_context3.t0);
+            return _context3.abrupt("return", (0, _response.failure)(_context3.t0));
+
+          case 22:
           case "end":
             return _context3.stop();
         }
       }
-    }, _callee3, undefined);
+    }, _callee3, undefined, [[0, 18]]);
   }));
 
   return function checkout(_x3) {

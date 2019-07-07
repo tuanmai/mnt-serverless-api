@@ -6,29 +6,34 @@ import { failure, sendReceiptMessage, success } from "./response";
 import Order from "./db/order";
 
 const addToCard = async event => {
-  const data = JSON.parse(event.body);
-  let pendingOrder = null;
+  try {
+    const data = JSON.parse(event.body);
+    let pendingOrder = null;
 
-  const pendingOrders = await Order.query(data.userId);
-  if (pendingOrders.data.Count > 0) {
-    pendingOrder = pendingOrders.data.Items[0];
-  } else {
-    pendingOrder = {
-      userId: data.userId,
-      orderId: uuid.v1(),
-      orderStatus: "pending",
-      createdAt: Date.now()
-    };
+    const pendingOrders = await Order.query(data.userId);
+    if (pendingOrders.data.Count > 0) {
+      pendingOrder = pendingOrders.data.Items[0];
+    } else {
+      pendingOrder = {
+        userId: data.userId,
+        orderId: uuid.v1(),
+        orderStatus: "pending",
+        createdAt: Date.now()
+      };
+    }
+
+    const newItem = { itemCode: data.itemCode, itemPrice: data.itemPrice };
+    const newOrder = addItemsToOrder(pendingOrder, [newItem]);
+
+    const result = await Order.put(newOrder);
+    if (result.success) {
+      return success(result.data);
+    }
+    return failure(result.error);
+  } catch (e) {
+    console.log(e);
+    return failure(e);
   }
-
-  const newItem = { itemCode: data.itemCode, itemPrice: data.itemPrice };
-  const newOrder = addItemsToOrder(pendingOrder, [newItem]);
-
-  const result = await Order.put(newOrder);
-  if (result.success) {
-    return success(result.data);
-  }
-  return failure(result.error);
 };
 
 const getOrder = async event => {
@@ -46,26 +51,31 @@ const getOrder = async event => {
 };
 
 const checkout = async event => {
-  const data = JSON.parse(event.body);
+  try {
+    const data = JSON.parse(event.body);
 
-  const pendingOrders = await Order.query(data.userId);
-  if (pendingOrders.data.Count == 0) {
-    return failure("Order not found");
+    const pendingOrders = await Order.query(data.userId);
+    if (pendingOrders.data.Count == 0) {
+      return failure("Order not found");
+    }
+    const pendingOrder = pendingOrders.data.Items[0];
+    const newOrder = {
+      ...pendingOrder,
+      orderStatus: "checkouted",
+      shippingCost: 0
+    };
+
+    const result = await Order.put(newOrder);
+    console.log(result);
+
+    if (result.success) {
+      return sendReceiptMessage(result.data);
+    }
+    return failure(result.error);
+  } catch (e) {
+    console.log(e);
+    return failure(e);
   }
-  const pendingOrder = pendingOrders.data.Items[0];
-  const newOrder = {
-    ...pendingOrder,
-    orderStatus: "checkouted",
-    shippingCost: 0
-  };
-
-  const result = await Order.put(newOrder);
-  console.log(result);
-
-  if (result.success) {
-    return sendReceiptMessage(result.data);
-  }
-  return failure(result.error);
 };
 
 const cancelOrder = async event => {

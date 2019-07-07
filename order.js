@@ -1,6 +1,6 @@
 import uuid from "uuid";
 
-import { map, find, reduce } from "lodash/fp";
+import { map, find, reduce, includes } from "lodash/fp";
 
 import { failure, sendReceiptMessage, success } from "./response";
 import Order from "./db/order";
@@ -63,7 +63,7 @@ const checkout = async event => {
       ...data,
       ...pendingOrder,
       orderStatus: "checkouted",
-      shippingCost: 0
+      shippingCost: calculateShippingCost(data.district)
     };
 
     const result = await Order.put(newOrder);
@@ -143,5 +143,67 @@ const addItemsToOrder = (order, items) => {
   return newOrder;
 };
 
+const calculateShippingCost = district => {
+  let newDistrict = remove_unicode(district);
+  newDistrict = newDistrict.replace(/quan/g, "");
+  newDistrict = newDistrict.trim();
+  console.log(newDistrict);
+  const freeship = ["bt", "1", "3"];
+  const ship10k = ["pn", "phu nhuan", "p.n"];
+  const ship20k = [
+    "2",
+    "9",
+    "12",
+    "btan",
+    "b.tan",
+    "binh tan",
+    "binhtan",
+    "td",
+    "thu duc",
+    "tduc",
+    "tphu",
+    "tan phu",
+    "t.phu",
+    "tp"
+  ];
+  if (includes(newDistrict, freeship)) {
+    return 0;
+  }
+  if (includes(newDistrict, ship10k)) {
+    return 10000;
+  }
+  if (includes(newDistrict, ship20k)) {
+    return 20000;
+  }
+  return 15000;
+};
+
+const remove_unicode = str => {
+  str = str.toLowerCase();
+  str = str.trim();
+  str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+  str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+  str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+  str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+  str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+  str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+  str = str.replace(/đ/g, "d");
+  str = str.replace(
+    /!|@|%|\^|\*|\(|\)|\+|\=|\<|\>|\?|\/|,|\.|\:|\;|\'| |\"|\&|\#|\[|\]|~|$|_/g,
+    ""
+  );
+
+  str = str.replace(/-+-/g, "-"); //thay thế 2- thành 1-
+  str = str.replace(/^\-+|\-+$/g, "");
+
+  return str;
+};
 // eslint-disable-next-line
-export { addToCard, checkout, cancelOrder, getOrder, addItemsToOrder };
+export {
+  addToCard,
+  checkout,
+  cancelOrder,
+  getOrder,
+  addItemsToOrder,
+  calculateShippingCost
+};

@@ -238,7 +238,7 @@ exports.failureResult = failureResult;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.addItemsToOrder = exports.getOrder = exports.cancelOrder = exports.checkout = exports.addToCard = undefined;
+exports.calculateShippingCost = exports.addItemsToOrder = exports.getOrder = exports.cancelOrder = exports.checkout = exports.addToCard = undefined;
 
 var _extends2 = __webpack_require__(/*! babel-runtime/helpers/extends */ "babel-runtime/helpers/extends");
 
@@ -395,7 +395,7 @@ var checkout = function () {
             pendingOrder = pendingOrders.data.Items[0];
             newOrder = (0, _extends3.default)({}, data, pendingOrder, {
               orderStatus: "checkouted",
-              shippingCost: 0
+              shippingCost: calculateShippingCost(data.district)
             });
             _context3.next = 11;
             return _order2.default.put(newOrder);
@@ -529,12 +529,50 @@ var addItemsToOrder = function addItemsToOrder(order, items) {
   return newOrder;
 };
 
+var calculateShippingCost = function calculateShippingCost(district) {
+  var newDistrict = remove_unicode(district);
+  newDistrict = newDistrict.replace(/quan/g, "");
+  newDistrict = newDistrict.trim();
+  console.log(newDistrict);
+  var freeship = ["bt", "1", "3"];
+  var ship10k = ["pn", "phu nhuan", "p.n"];
+  var ship20k = ["2", "9", "12", "btan", "b.tan", "binh tan", "binhtan", "td", "thu duc", "tduc", "tphu", "tan phu", "t.phu", "tp"];
+  if ((0, _fp.includes)(newDistrict, freeship)) {
+    return 0;
+  }
+  if ((0, _fp.includes)(newDistrict, ship10k)) {
+    return 10000;
+  }
+  if ((0, _fp.includes)(newDistrict, ship20k)) {
+    return 20000;
+  }
+  return 15000;
+};
+
+var remove_unicode = function remove_unicode(str) {
+  str = str.toLowerCase();
+  str = str.trim();
+  str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+  str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+  str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+  str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+  str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+  str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+  str = str.replace(/đ/g, "d");
+  str = str.replace(/!|@|%|\^|\*|\(|\)|\+|\=|\<|\>|\?|\/|,|\.|\:|\;|\'| |\"|\&|\#|\[|\]|~|$|_/g, "");
+
+  str = str.replace(/-+-/g, "-"); //thay thế 2- thành 1-
+  str = str.replace(/^\-+|\-+$/g, "");
+
+  return str;
+};
 // eslint-disable-next-line
 exports.addToCard = addToCard;
 exports.checkout = checkout;
 exports.cancelOrder = cancelOrder;
 exports.getOrder = getOrder;
 exports.addItemsToOrder = addItemsToOrder;
+exports.calculateShippingCost = calculateShippingCost;
 
 /***/ }),
 

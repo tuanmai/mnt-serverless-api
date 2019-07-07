@@ -60,6 +60,7 @@ const checkout = async event => {
     }
     const pendingOrder = pendingOrders.data.Items[0];
     const newOrder = {
+      ...data,
       ...pendingOrder,
       orderStatus: "checkouted",
       shippingCost: 0

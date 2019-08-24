@@ -1,7 +1,7 @@
 import { failureResult, successResult } from "./serviceResult";
 import AWS from "aws-sdk";
 
-let tableName = "orders";
+let tableName = process.env.ORDER_TABLE_NAME || "orders-dev";
 if (process.env.ENV == "test") {
   AWS.config.update({ region: "us-east-1" });
   tableName = "orders-dev";

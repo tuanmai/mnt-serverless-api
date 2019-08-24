@@ -114,7 +114,7 @@ var _awsSdk2 = _interopRequireDefault(_awsSdk);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var tableName = "orders";
+var tableName = process.env.ORDER_TABLE_NAME || "orders-dev";
 if (process.env.ENV == "test") {
   _awsSdk2.default.config.update({ region: "us-east-1" });
   tableName = "orders-dev";
@@ -238,7 +238,7 @@ exports.failureResult = failureResult;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.calculateShippingCost = exports.addItemsToOrder = exports.getOrder = exports.cancelOrder = exports.checkout = exports.addToCard = undefined;
+exports.calculateShippingCost = exports.getAllPendingOrders = exports.addItemsToOrder = exports.getOrder = exports.cancelOrder = exports.checkout = exports.addToCard = undefined;
 
 var _extends2 = __webpack_require__(/*! babel-runtime/helpers/extends */ "babel-runtime/helpers/extends");
 
@@ -268,21 +268,67 @@ var _order2 = _interopRequireDefault(_order);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var addToCard = function () {
+var getAllPendingOrders = function () {
   var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee(event) {
-    var data, pendingOrder, pendingOrders, newItem, newOrder, result;
+    var result;
     return _regenerator2.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
             _context.prev = 0;
+            _context.next = 3;
+            return _order2.default.getAll();
+
+          case 3:
+            result = _context.sent;
+
+            console.log(result);
+
+            if (!result.success) {
+              _context.next = 7;
+              break;
+            }
+
+            return _context.abrupt("return", (0, _response.success)(result.data));
+
+          case 7:
+            return _context.abrupt("return", (0, _response.failure)(result.error));
+
+          case 10:
+            _context.prev = 10;
+            _context.t0 = _context["catch"](0);
+
+            console.log(_context.t0);
+            return _context.abrupt("return", (0, _response.failure)(_context.t0));
+
+          case 14:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, undefined, [[0, 10]]);
+  }));
+
+  return function getAllPendingOrders(_x) {
+    return _ref.apply(this, arguments);
+  };
+}();
+
+var addToCard = function () {
+  var _ref2 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(event) {
+    var data, pendingOrder, pendingOrders, newItem, newOrder, result;
+    return _regenerator2.default.wrap(function _callee2$(_context2) {
+      while (1) {
+        switch (_context2.prev = _context2.next) {
+          case 0:
+            _context2.prev = 0;
             data = JSON.parse(event.body);
             pendingOrder = null;
-            _context.next = 5;
+            _context2.next = 5;
             return _order2.default.query(data.userId);
 
           case 5:
-            pendingOrders = _context.sent;
+            pendingOrders = _context2.sent;
 
             if (pendingOrders.data.Count > 0) {
               pendingOrder = pendingOrders.data.Items[0];
@@ -297,103 +343,103 @@ var addToCard = function () {
 
             newItem = { itemCode: data.itemCode, itemPrice: data.itemPrice };
             newOrder = addItemsToOrder(pendingOrder, [newItem]);
-            _context.next = 11;
+            _context2.next = 11;
             return _order2.default.put(newOrder);
 
           case 11:
-            result = _context.sent;
+            result = _context2.sent;
 
             if (!result.success) {
-              _context.next = 14;
+              _context2.next = 14;
               break;
             }
 
-            return _context.abrupt("return", (0, _response.success)(result.data));
+            return _context2.abrupt("return", (0, _response.success)(result.data));
 
           case 14:
-            return _context.abrupt("return", (0, _response.failure)(result.error));
+            return _context2.abrupt("return", (0, _response.failure)(result.error));
 
           case 17:
-            _context.prev = 17;
-            _context.t0 = _context["catch"](0);
+            _context2.prev = 17;
+            _context2.t0 = _context2["catch"](0);
 
-            console.log(_context.t0);
-            return _context.abrupt("return", (0, _response.failure)(_context.t0));
+            console.log(_context2.t0);
+            return _context2.abrupt("return", (0, _response.failure)(_context2.t0));
 
           case 21:
-          case "end":
-            return _context.stop();
-        }
-      }
-    }, _callee, undefined, [[0, 17]]);
-  }));
-
-  return function addToCard(_x) {
-    return _ref.apply(this, arguments);
-  };
-}();
-
-var getOrder = function () {
-  var _ref2 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(event) {
-    var pendingOrder, pendingOrders;
-    return _regenerator2.default.wrap(function _callee2$(_context2) {
-      while (1) {
-        switch (_context2.prev = _context2.next) {
-          case 0:
-            pendingOrder = null;
-            _context2.next = 3;
-            return _order2.default.query(event.pathParameters.userId);
-
-          case 3:
-            pendingOrders = _context2.sent;
-
-            console.log(pendingOrders);
-
-            if (!(pendingOrders.data.Count > 0)) {
-              _context2.next = 10;
-              break;
-            }
-
-            pendingOrder = pendingOrders.data.Items[0];
-            return _context2.abrupt("return", sendOrderDetailsMessage(pendingOrder));
-
-          case 10:
-            return _context2.abrupt("return", sendMessage("Hiện tại bạn chưa có sản phẩm nào trong giỏ hàng."));
-
-          case 11:
           case "end":
             return _context2.stop();
         }
       }
-    }, _callee2, undefined);
+    }, _callee2, undefined, [[0, 17]]);
   }));
 
-  return function getOrder(_x2) {
+  return function addToCard(_x2) {
     return _ref2.apply(this, arguments);
   };
 }();
 
-var checkout = function () {
+var getOrder = function () {
   var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee3(event) {
-    var data, pendingOrders, pendingOrder, newOrder, result;
+    var pendingOrder, pendingOrders;
     return _regenerator2.default.wrap(function _callee3$(_context3) {
       while (1) {
         switch (_context3.prev = _context3.next) {
           case 0:
-            _context3.prev = 0;
-            data = JSON.parse(event.body);
-            _context3.next = 4;
-            return _order2.default.query(data.userId);
+            pendingOrder = null;
+            _context3.next = 3;
+            return _order2.default.query(event.pathParameters.userId);
 
-          case 4:
+          case 3:
             pendingOrders = _context3.sent;
 
-            if (!(pendingOrders.data.Count == 0)) {
-              _context3.next = 7;
+            console.log(pendingOrders);
+
+            if (!(pendingOrders.data.Count > 0)) {
+              _context3.next = 10;
               break;
             }
 
-            return _context3.abrupt("return", (0, _response.failure)("Order not found"));
+            pendingOrder = pendingOrders.data.Items[0];
+            return _context3.abrupt("return", (0, _response.sendOrderDetailsMessage)(pendingOrder));
+
+          case 10:
+            return _context3.abrupt("return", (0, _response.sendMessage)("Hiện tại bạn chưa có sản phẩm nào trong giỏ hàng."));
+
+          case 11:
+          case "end":
+            return _context3.stop();
+        }
+      }
+    }, _callee3, undefined);
+  }));
+
+  return function getOrder(_x3) {
+    return _ref3.apply(this, arguments);
+  };
+}();
+
+var checkout = function () {
+  var _ref4 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee4(event) {
+    var data, pendingOrders, pendingOrder, newOrder, result;
+    return _regenerator2.default.wrap(function _callee4$(_context4) {
+      while (1) {
+        switch (_context4.prev = _context4.next) {
+          case 0:
+            _context4.prev = 0;
+            data = JSON.parse(event.body);
+            _context4.next = 4;
+            return _order2.default.query(data.userId);
+
+          case 4:
+            pendingOrders = _context4.sent;
+
+            if (!(pendingOrders.data.Count == 0)) {
+              _context4.next = 7;
+              break;
+            }
+
+            return _context4.abrupt("return", (0, _response.failure)("Order not found"));
 
           case 7:
             pendingOrder = pendingOrders.data.Items[0];
@@ -401,94 +447,96 @@ var checkout = function () {
               orderStatus: "checkouted",
               shippingCost: calculateShippingCost(data.district)
             });
-            _context3.next = 11;
+            _context4.next = 11;
             return _order2.default.put(newOrder);
 
           case 11:
-            result = _context3.sent;
+            result = _context4.sent;
+
+            console.log(result);
 
             if (!result.success) {
-              _context3.next = 14;
+              _context4.next = 15;
               break;
             }
 
-            return _context3.abrupt("return", (0, _response.sendReceiptMessage)(result.data));
+            return _context4.abrupt("return", (0, _response.sendReceiptMessage)(result.data));
 
-          case 14:
-            return _context3.abrupt("return", (0, _response.failure)(result.error));
+          case 15:
+            return _context4.abrupt("return", (0, _response.failure)(result.error));
 
-          case 17:
-            _context3.prev = 17;
-            _context3.t0 = _context3["catch"](0);
+          case 18:
+            _context4.prev = 18;
+            _context4.t0 = _context4["catch"](0);
 
-            console.log(_context3.t0);
-            return _context3.abrupt("return", (0, _response.failure)(_context3.t0));
+            console.log(_context4.t0);
+            return _context4.abrupt("return", (0, _response.failure)(_context4.t0));
 
-          case 21:
+          case 22:
           case "end":
-            return _context3.stop();
+            return _context4.stop();
         }
       }
-    }, _callee3, undefined, [[0, 17]]);
+    }, _callee4, undefined, [[0, 18]]);
   }));
 
-  return function checkout(_x3) {
-    return _ref3.apply(this, arguments);
+  return function checkout(_x4) {
+    return _ref4.apply(this, arguments);
   };
 }();
 
 var cancelOrder = function () {
-  var _ref4 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee4(event) {
+  var _ref5 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee5(event) {
     var data, pendingOrders, pendingOrder, newOrder, result;
-    return _regenerator2.default.wrap(function _callee4$(_context4) {
+    return _regenerator2.default.wrap(function _callee5$(_context5) {
       while (1) {
-        switch (_context4.prev = _context4.next) {
+        switch (_context5.prev = _context5.next) {
           case 0:
             data = JSON.parse(event.body);
-            _context4.next = 3;
+            _context5.next = 3;
             return _order2.default.query(data.userId);
 
           case 3:
-            pendingOrders = _context4.sent;
+            pendingOrders = _context5.sent;
 
             if (!(pendingOrders.data.Count == 0)) {
-              _context4.next = 6;
+              _context5.next = 6;
               break;
             }
 
-            return _context4.abrupt("return", (0, _response.failure)("Order not found"));
+            return _context5.abrupt("return", (0, _response.failure)("Order not found"));
 
           case 6:
             pendingOrder = pendingOrders.data.Items[0];
             newOrder = (0, _extends3.default)({}, pendingOrder, {
               orderStatus: "canceled"
             });
-            _context4.next = 10;
+            _context5.next = 10;
             return _order2.default.put(newOrder);
 
           case 10:
-            result = _context4.sent;
+            result = _context5.sent;
 
             if (!result.success) {
-              _context4.next = 13;
+              _context5.next = 13;
               break;
             }
 
-            return _context4.abrupt("return", (0, _response.success)(result.data));
+            return _context5.abrupt("return", (0, _response.success)(result.data));
 
           case 13:
-            return _context4.abrupt("return", (0, _response.failure)(result.error));
+            return _context5.abrupt("return", (0, _response.failure)(result.error));
 
           case 14:
           case "end":
-            return _context4.stop();
+            return _context5.stop();
         }
       }
-    }, _callee4, undefined);
+    }, _callee5, undefined);
   }));
 
-  return function cancelOrder(_x4) {
-    return _ref4.apply(this, arguments);
+  return function cancelOrder(_x5) {
+    return _ref5.apply(this, arguments);
   };
 }();
 
@@ -535,6 +583,7 @@ var calculateShippingCost = function calculateShippingCost(district) {
   var newDistrict = remove_unicode(district);
   newDistrict = newDistrict.replace(/quan/g, "");
   newDistrict = newDistrict.trim();
+  console.log(newDistrict);
   var freeship = ["bt", "1", "3", "binh thanh", "b.thanh", "b.t", "b thanh"];
   var ship10k = ["pn", "phu nhuan", "p.n"];
   var ship20k = ["2", "9", "12", "btan", "b.tan", "binh tan", "binhtan", "td", "thu duc", "tduc", "tphu", "tan phu", "t.phu", "tp"];
@@ -573,6 +622,7 @@ exports.checkout = checkout;
 exports.cancelOrder = cancelOrder;
 exports.getOrder = getOrder;
 exports.addItemsToOrder = addItemsToOrder;
+exports.getAllPendingOrders = getAllPendingOrders;
 exports.calculateShippingCost = calculateShippingCost;
 
 /***/ }),
@@ -650,7 +700,7 @@ var sendOrderDetailsMessage = function sendOrderDetailsMessage(order) {
     return item.count + " " + item.itemCode + " gi\xE1 " + formatMoney(item.total);
   }, order.items).join(", ");
   var addressMessage = order.address + ", Ph\u01B0\u1EDDng " + order.ward + ", Qu\u1EADn " + order.district;
-  var message1 = "\u0110\u01A1n h\xE0ng c\u1EE7a b\u1EA1n g\u1ED3m: " + elementsMessage + ".\nPh\xED ship \uD83D\uDE9A: " + (order.shippingCost === 0 ? "Free ship" : formatMoney(order.shippingCost)) + ".\nT\u1ED5ng c\u1ED9ng \uD83D\uDCB0: " + formatMoney(order.total + order.shippingCost) + ".\n  ";
+  var message1 = "\u0110\u01A1n h\xE0ng c\u1EE7a b\u1EA1n g\u1ED3m: " + elementsMessage + ".\n  ";
 
   return sendMessage(message1);
 };

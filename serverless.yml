@@ -22,7 +22,9 @@ service: mnt-api # NOTE: update this with your service name
 provider:
   name: aws
   runtime: nodejs10.x
-  stage: production
+  stage: dev
+  environment:
+    ORDER_TABLE_NAME: ${self:custom.myEnvironment.ORDER_TABLE_NAME.${self:custom.myStage}}
 
   iamRoleStatements:
     - Effect: Allow
@@ -35,22 +37,6 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
       Resource: "arn:aws:dynamodb:us-east-1:*:*"
-
-# you can add statements to the Lambda function's IAM Role here
-#  iamRoleStatements:
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:ListBucket"
-#      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:PutObject"
-#      Resource:
-#        Fn::Join:
-#          - ""
-#          - - "arn:aws:s3:::"
-#            - "Ref" : "ServerlessDeploymentBucket"
-#            - "/*"
 
 # you can define service wide environment variables here
 #  environment:
@@ -66,6 +52,12 @@ provider:
 #    - exclude-me-dir/**
 
 functions:
+  get-pendings:
+    handler: order.getAllPendingOrders
+    events:
+      - http:
+          path: orders
+          method: get
   add-to-card:
     handler: order.addToCard
     events:
@@ -149,3 +141,9 @@ custom:
   webpack:
     webpackConfig: ./webpack.config.js
     includeModules: true
+  myStage: ${opt:stage, self:provider.stage}
+  myEnvironment:
+    ORDER_TABLE_NAME:
+      production: "orders-production"
+      staging: "orders-staging"
+      dev: "orders-dev"

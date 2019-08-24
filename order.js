@@ -2,8 +2,28 @@ import uuid from "uuid";
 
 import { map, find, reduce, includes } from "lodash/fp";
 
-import { failure, sendReceiptMessage, success } from "./response";
+import {
+  failure,
+  sendReceiptMessage,
+  success,
+  sendOrderDetailsMessage,
+  sendMessage
+} from "./response";
 import Order from "./db/order";
+
+const getAllPendingOrders = async event => {
+  try {
+    const result = await Order.getAll();
+    console.log(result);
+    if (result.success) {
+      return success(result.data);
+    }
+    return failure(result.error);
+  } catch (e) {
+    console.log(e);
+    return failure(e);
+  }
+};
 
 const addToCard = async event => {
   try {
@@ -66,6 +86,7 @@ const checkout = async event => {
     };
 
     const result = await Order.put(newOrder);
+    console.log(result);
 
     if (result.success) {
       return sendReceiptMessage(result.data);
@@ -145,6 +166,7 @@ const calculateShippingCost = district => {
   let newDistrict = remove_unicode(district);
   newDistrict = newDistrict.replace(/quan/g, "");
   newDistrict = newDistrict.trim();
+  console.log(newDistrict);
   const freeship = ["bt", "1", "3", "binh thanh", "b.thanh", "b.t", "b thanh"];
   const ship10k = ["pn", "phu nhuan", "p.n"];
   const ship20k = [
@@ -202,5 +224,6 @@ export {
   cancelOrder,
   getOrder,
   addItemsToOrder,
+  getAllPendingOrders,
   calculateShippingCost
 };

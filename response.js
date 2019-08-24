@@ -61,10 +61,6 @@ const sendOrderDetailsMessage = order => {
     order.district
   }`;
   const message1 = `Đơn hàng của bạn gồm: ${elementsMessage}.
-Phí ship 🚚: ${
-    order.shippingCost === 0 ? "Free ship" : formatMoney(order.shippingCost)
-  }.
-Tổng cộng 💰: ${formatMoney(order.total + order.shippingCost)}.
   `;
 
   return sendMessage(message1);

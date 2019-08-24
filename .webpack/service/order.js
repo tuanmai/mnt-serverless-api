@@ -348,15 +348,19 @@ var getOrder = function () {
             pendingOrders = _context2.sent;
 
             console.log(pendingOrders);
-            if (pendingOrders.data.Count > 0) {
-              pendingOrder = pendingOrders.data.Items[0];
-            } else {
-              pendingOrder = {};
+
+            if (!(pendingOrders.data.Count > 0)) {
+              _context2.next = 10;
+              break;
             }
 
-            return _context2.abrupt("return", (0, _response.success)(pendingOrder));
+            pendingOrder = pendingOrders.data.Items[0];
+            return _context2.abrupt("return", sendOrderDetailsMessage(pendingOrder));
 
-          case 7:
+          case 10:
+            return _context2.abrupt("return", sendMessage("Hiện tại bạn chưa có sản phẩm nào trong giỏ hàng."));
+
+          case 11:
           case "end":
             return _context2.stop();
         }
@@ -403,31 +407,29 @@ var checkout = function () {
           case 11:
             result = _context3.sent;
 
-            console.log(result);
-
             if (!result.success) {
-              _context3.next = 15;
+              _context3.next = 14;
               break;
             }
 
             return _context3.abrupt("return", (0, _response.sendReceiptMessage)(result.data));
 
-          case 15:
+          case 14:
             return _context3.abrupt("return", (0, _response.failure)(result.error));
 
-          case 18:
-            _context3.prev = 18;
+          case 17:
+            _context3.prev = 17;
             _context3.t0 = _context3["catch"](0);
 
             console.log(_context3.t0);
             return _context3.abrupt("return", (0, _response.failure)(_context3.t0));
 
-          case 22:
+          case 21:
           case "end":
             return _context3.stop();
         }
       }
-    }, _callee3, undefined, [[0, 18]]);
+    }, _callee3, undefined, [[0, 17]]);
   }));
 
   return function checkout(_x3) {
@@ -533,8 +535,7 @@ var calculateShippingCost = function calculateShippingCost(district) {
   var newDistrict = remove_unicode(district);
   newDistrict = newDistrict.replace(/quan/g, "");
   newDistrict = newDistrict.trim();
-  console.log(newDistrict);
-  var freeship = ["bt", "1", "3"];
+  var freeship = ["bt", "1", "3", "binh thanh", "b.thanh", "b.t", "b thanh"];
   var ship10k = ["pn", "phu nhuan", "p.n"];
   var ship20k = ["2", "9", "12", "btan", "b.tan", "binh tan", "binhtan", "td", "thu duc", "tduc", "tphu", "tan phu", "t.phu", "tp"];
   if ((0, _fp.includes)(newDistrict, freeship)) {
@@ -589,7 +590,7 @@ exports.calculateShippingCost = calculateShippingCost;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.sendReceiptMessage = exports.sendReceipt = exports.sendMessage = exports.failure = exports.success = undefined;
+exports.sendOrderDetailsMessage = exports.sendReceiptMessage = exports.sendReceipt = exports.sendMessage = exports.failure = exports.success = undefined;
 
 var _stringify = __webpack_require__(/*! babel-runtime/core-js/json/stringify */ "babel-runtime/core-js/json/stringify");
 
@@ -644,6 +645,16 @@ var sendReceiptMessage = function sendReceiptMessage(order) {
   return sendMessage(message1);
 };
 
+var sendOrderDetailsMessage = function sendOrderDetailsMessage(order) {
+  var elementsMessage = (0, _fp.map)(function (item) {
+    return item.count + " " + item.itemCode + " gi\xE1 " + formatMoney(item.total);
+  }, order.items).join(", ");
+  var addressMessage = order.address + ", Ph\u01B0\u1EDDng " + order.ward + ", Qu\u1EADn " + order.district;
+  var message1 = "\u0110\u01A1n h\xE0ng c\u1EE7a b\u1EA1n g\u1ED3m: " + elementsMessage + ".\nPh\xED ship \uD83D\uDE9A: " + (order.shippingCost === 0 ? "Free ship" : formatMoney(order.shippingCost)) + ".\nT\u1ED5ng c\u1ED9ng \uD83D\uDCB0: " + formatMoney(order.total + order.shippingCost) + ".\n  ";
+
+  return sendMessage(message1);
+};
+
 var sendReceipt = function sendReceipt(order) {
   var addressMessage = {
     street_1: order.address || "",
@@ -689,7 +700,7 @@ var success = function success(body) {
 };
 
 var failure = function failure(body) {
-  return sendMessage("Hix, hệ thống thiện tại đang bị lỗi 😢. Bạn vui lòng liên hệ trực tiếp tư vấn viên để được hỗ trợ");
+  return sendMessage("Hix, h\u1EC7 th\u1ED1ng thi\u1EC7n t\u1EA1i \u0111ang b\u1ECB l\u1ED7i \uD83D\uDE22. B\u1EA1n vui l\xF2ng li\xEAn h\u1EC7 tr\u1EF1c ti\u1EBFp t\u01B0 v\u1EA5n vi\xEAn \u0111\u1EC3 \u0111\u01B0\u1EE3c h\u1ED7 tr\u1EE3. L\u1ED7i: " + body);
 };
 
 exports.success = success;
@@ -697,6 +708,7 @@ exports.failure = failure;
 exports.sendMessage = sendMessage;
 exports.sendReceipt = sendReceipt;
 exports.sendReceiptMessage = sendReceiptMessage;
+exports.sendOrderDetailsMessage = sendOrderDetailsMessage;
 
 /***/ }),
 

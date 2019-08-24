@@ -42,29 +42,32 @@ describe("Checkout", () => {
     it("returns error order not found", async () => {
       const event = {
         body: JSON.stringify({
-          userId: "123"
+          userId: "123",
+          district: "binh thanh"
         })
       };
       const result = await checkout(event);
       const bodyData = JSON.parse(result.body);
-      expect(bodyData.error).toEqual("Order not found");
-      expect(result.statusCode).toEqual(400);
+      expect(bodyData["messages"][0]["text"]).toContain("Order not found");
+      expect(result.statusCode).toEqual(200);
     });
   });
 
   describe("there is a pending order", () => {
-    it("returns error order not found", async () => {
+    it("returns order details", async () => {
       const createEvent = {
         body: JSON.stringify({
           userId: "123",
           itemCode: "combo",
+          district: "binh thanh",
           itemPrice: 90000
         })
       };
       await addToCard(createEvent);
       const event = {
         body: JSON.stringify({
-          userId: "123"
+          userId: "123",
+          district: "binh thanh"
         })
       };
       const result = await checkout(event);

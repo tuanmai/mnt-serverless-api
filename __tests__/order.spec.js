@@ -118,8 +118,8 @@ describe("checkout", () => {
       Order.query.mockReturnValue(Promise.resolve(queryMock));
       const result = await checkout(event);
       const bodyData = JSON.parse(result.body);
-      expect(bodyData.error).toEqual("Order not found");
-      expect(result.statusCode).toEqual(400);
+      expect(bodyData["messages"][0]["text"]).toContain("Order not found");
+      expect(result.statusCode).toEqual(200);
     });
   });
 

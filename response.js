@@ -52,6 +52,24 @@ Bạn lưu ý giúp mình chính sách ship như mọi khi bạn nhé. có gì t
   return sendMessage(message1);
 };
 
+const sendOrderDetailsMessage = order => {
+  const elementsMessage = map(
+    item => `${item.count} ${item.itemCode} giá ${formatMoney(item.total)}`,
+    order.items
+  ).join(", ");
+  const addressMessage = `${order.address}, Phường ${order.ward}, Quận ${
+    order.district
+  }`;
+  const message1 = `Đơn hàng của bạn gồm: ${elementsMessage}.
+Phí ship 🚚: ${
+    order.shippingCost === 0 ? "Free ship" : formatMoney(order.shippingCost)
+  }.
+Tổng cộng 💰: ${formatMoney(order.total + order.shippingCost)}.
+  `;
+
+  return sendMessage(message1);
+};
+
 const sendReceipt = order => {
   const addressMessage = {
     street_1: order.address || "",
@@ -99,7 +117,14 @@ const success = body => buildResponse(200, body);
 
 const failure = body =>
   sendMessage(
-    "Hix, hệ thống thiện tại đang bị lỗi 😢. Bạn vui lòng liên hệ trực tiếp tư vấn viên để được hỗ trợ"
+    `Hix, hệ thống thiện tại đang bị lỗi 😢. Bạn vui lòng liên hệ trực tiếp tư vấn viên để được hỗ trợ. Lỗi: ${body}`
   );
 
-export { success, failure, sendMessage, sendReceipt, sendReceiptMessage };
+export {
+  success,
+  failure,
+  sendMessage,
+  sendReceipt,
+  sendReceiptMessage,
+  sendOrderDetailsMessage
+};

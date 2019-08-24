@@ -43,11 +43,10 @@ const getOrder = async event => {
   console.log(pendingOrders);
   if (pendingOrders.data.Count > 0) {
     pendingOrder = pendingOrders.data.Items[0];
+    return sendOrderDetailsMessage(pendingOrder);
   } else {
-    pendingOrder = {};
+    return sendMessage("Hiện tại bạn chưa có sản phẩm nào trong giỏ hàng.");
   }
-
-  return success(pendingOrder);
 };
 
 const checkout = async event => {
@@ -67,7 +66,6 @@ const checkout = async event => {
     };
 
     const result = await Order.put(newOrder);
-    console.log(result);
 
     if (result.success) {
       return sendReceiptMessage(result.data);
@@ -147,8 +145,7 @@ const calculateShippingCost = district => {
   let newDistrict = remove_unicode(district);
   newDistrict = newDistrict.replace(/quan/g, "");
   newDistrict = newDistrict.trim();
-  console.log(newDistrict);
-  const freeship = ["bt", "1", "3"];
+  const freeship = ["bt", "1", "3", "binh thanh", "b.thanh", "b.t", "b thanh"];
   const ship10k = ["pn", "phu nhuan", "p.n"];
   const ship20k = [
     "2",
